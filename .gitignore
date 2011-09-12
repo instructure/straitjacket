@@ -1,0 +1,4 @@
+*.pyc
+src/*.o
+src/*.so
+config/cached_versions.conf

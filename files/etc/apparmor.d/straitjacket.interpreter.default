@@ -1,0 +1,8 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/default {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+}

@@ -1,0 +1,9 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/guile {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+  /usr/share/guile/** r,
+}

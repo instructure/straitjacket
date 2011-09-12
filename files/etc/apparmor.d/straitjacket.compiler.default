@@ -1,0 +1,10 @@
+#include <tunables/global>
+
+profile straitjacket/compiler/default {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-gcc>
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+  /var/local/straitjacket/tmp/compiler/?* rw,
+}

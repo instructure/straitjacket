@@ -1,0 +1,34 @@
+#################
+## RLIMITS
+#################
+
+## evidently not all versions of apparmor support setting this rlimit. it's okay
+## because we kill -9 if user time overruns this.
+#  set rlimit cpu <= 15,
+
+  set rlimit fsize <= 0,
+  set rlimit data <= 32M,
+  set rlimit stack <= 32M,
+  set rlimit core <= 0,
+  set rlimit rss <= 5,
+  set rlimit memlock <= 0,
+  set rlimit msgqueue <= 0,
+  set rlimit locks <= 0,
+  set rlimit sigpending <= 2,
+  set rlimit nproc <= 0,
+  set rlimit rtprio <= 0,
+
+# larger for DLLs
+  set rlimit as <= 128M,
+
+# 1 greater than max
+  set rlimit nofile <= 101,
+
+## so, nice values are confusing. 20 is low priority, -19 is high priority.
+## here, we really want to enforce that the nice value is never less than 5,
+## but the app armor configuration parser complains "expecting TOK_LE" if you
+## use TOK_GE. so, maybe <= is just the wrong symbol to use for this config file
+## to specify a limit? i absolutely don't want to enforce that the application
+## is always 5 or lower niceness.
+## TODO: revisit
+#  set rlimit nice <= 5,

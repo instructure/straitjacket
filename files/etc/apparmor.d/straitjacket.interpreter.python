@@ -1,0 +1,13 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/python {
+  #include <abstractions/base>
+  #include <abstractions/python>
+  #include <abstractions/straitjacket-base>
+
+  /usr/include/python2.[4567]/pyconfig.h r,
+  /usr/bin/python* rix,
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+
+}

@@ -1,0 +1,14 @@
+#include <tunables/global>
+
+profile straitjacket/compiler/dmd {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-gcc>
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+  /var/local/straitjacket/tmp/compiler/?* rw,
+
+  /usr/bin/gcc* rix,
+  /etc/dmd.conf r,
+
+}

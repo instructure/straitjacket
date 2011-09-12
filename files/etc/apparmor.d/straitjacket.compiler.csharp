@@ -1,0 +1,10 @@
+#include <tunables/global>
+
+profile straitjacket/compiler/csharp {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-mono>
+
+  /var/local/straitjacket/tmp/source/?*/?* rw,
+
+}

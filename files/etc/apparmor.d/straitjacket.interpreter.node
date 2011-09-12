@@ -1,0 +1,13 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/node {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+
+# what the heck, node loves forking
+  set rlimit nproc <= 250,
+# node links in a lot
+  set rlimit as <= 1G,
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+}

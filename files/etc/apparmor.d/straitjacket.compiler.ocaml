@@ -1,0 +1,15 @@
+#include <tunables/global>
+
+profile straitjacket/compiler/ocaml {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-gcc>
+
+  /var/local/straitjacket/tmp/source/?*/?*.ml r,
+  /var/local/straitjacket/tmp/source/?*/?*.cmo rw,
+  /var/local/straitjacket/tmp/source/?*/?*.cmi rw,
+  /var/local/straitjacket/tmp/compiler/?* rw,
+
+  /usr/bin/ocamlc r,
+
+}

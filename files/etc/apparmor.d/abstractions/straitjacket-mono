@@ -1,0 +1,9 @@
+  set rlimit fsize <= 32M,
+  set rlimit nproc <= 500,
+  set rlimit as <= 1G,
+
+# 1 greater than max
+  set rlimit nofile <= 501,
+
+  /usr/bin/mono rix,
+  /usr/lib/mono/** r,

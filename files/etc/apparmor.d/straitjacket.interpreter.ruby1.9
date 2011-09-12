@@ -1,0 +1,11 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/ruby1.9 {
+  #include <abstractions/base>
+  #include <abstractions/ruby>
+  #include <abstractions/straitjacket-base>
+
+  set rlimit nproc <= 300, # what the heck ruby
+
+  /var/local/straitjacket/tmp/source/?*/?* r,
+}

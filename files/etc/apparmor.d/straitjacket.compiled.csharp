@@ -1,0 +1,14 @@
+#include <tunables/global>
+
+profile straitjacket/compiled/csharp {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-mono>
+
+  /usr/bin/mono rix,
+  /usr/lib/mono/** r,
+
+  /var/local/straitjacket/lib/getpwuid_r_hijack.so rm,
+  /var/local/straitjacket/tmp/source/?*/?* r,
+
+}

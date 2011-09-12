@@ -1,0 +1,11 @@
+<VirtualHost *:80>
+	ServerAdmin jt@instructure.com
+
+	DocumentRoot /var/webapps/straitjacket/static
+	Alias /static/ /var/webapps/straitjacket/static/
+	<Directory /var/webapps/straitjacket/static>
+		Order allow,deny
+		Allow from all
+	</Directory>
+	WSGIScriptAlias / /var/webapps/straitjacket/server_wsgi.py
+</VirtualHost>
