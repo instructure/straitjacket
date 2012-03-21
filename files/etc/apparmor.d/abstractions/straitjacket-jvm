@@ -1,9 +1,10 @@
   set rlimit fsize <= 32M,
   set rlimit nproc <= 500,
-  set rlimit as <= 1G,
+  set rlimit as <= 768M,
 
 # 1 greater than max
   set rlimit nofile <= 501,
 
   /usr/lib/jvm/*/jre/bin/* rix,
+  /usr/share/java*/**/*.jar r,
   /usr/share/java*/*.jar r,

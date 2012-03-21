@@ -1,12 +1,13 @@
 #include <tunables/global>
 
-profile straitjacket/interpreter/ruby1.9 {
+profile straitjacket/interpreter/racket {
   #include <abstractions/base>
-  #include <abstractions/ruby>
   #include <abstractions/straitjacket-base>
 
-# what the heck ruby
-  set rlimit nproc <= 300,
+  set rlimit nproc <= 6,
 
+  /usr/bin/plt-r5rs r,
+  /usr/bin/racket rix,
+  /usr/share/racket/** r,
   /var/local/straitjacket/tmp/source/?*/?* r,
 }
