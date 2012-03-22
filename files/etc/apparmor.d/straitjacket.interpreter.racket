@@ -4,7 +4,7 @@ profile straitjacket/interpreter/racket {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
 
-  set rlimit nproc <= 6,
+  set rlimit nproc <= 32,
 
   /usr/bin/plt-r5rs r,
   /usr/bin/racket rix,
