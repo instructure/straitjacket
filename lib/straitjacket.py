@@ -135,9 +135,10 @@ class StraitJacket(object):
     if len(options) > 0: language_config["options"] = options.split(" ")
     else: language_config["options"] = []
 
-    language_config["visible_name"] = "%s (%s)" % (
-        language_config["name"], " ".join([language_config["binary"]] +
-            language_config["options"]))
+    if "visible_name" not in language_config:
+      language_config["visible_name"] = "%s (%s)" % (
+          language_config["name"], " ".join([language_config["binary"]] +
+              language_config["options"]))
 
     if skip_language_checks:
       if self.cached_versions.has_option("versions", language):
