@@ -96,6 +96,8 @@ class StraitJacket(object):
       self.cached_versions_needs_flush = False
     else:
       self.cached_versions = ConfigParser.SafeConfigParser()
+
+    if not self.cached_versions.has_section("versions"):
       self.cached_versions.add_section("versions")
       self.cached_versions_needs_flush = True
 
@@ -133,32 +135,49 @@ class StraitJacket(object):
     if len(options) > 0: language_config["options"] = options.split(" ")
     else: language_config["options"] = []
 
-    language_config["visible_name"] = "%s (%s)" % (
-        language_config["name"], " ".join([language_config["binary"]] +
-            language_config["options"]))
+    if "visible_name" not in language_config:
+      language_config["visible_name"] = "%s (%s)" % (
+          language_config["name"], " ".join([language_config["binary"]] +
+              language_config["options"]))
 
-    if not self.cached_versions.has_option("versions", language) or \
-        not skip_language_checks:
-      self.cached_versions_needs_flush = True
-      try:
-        self.cached_versions.set("versions", language, [
-            x for x in (x.strip() for x in subprocess.Popen(
-              [language_config["binary"], language_config.get("version_switch",
-              "--version")], stdout=subprocess.PIPE,
-              stderr=subprocess.STDOUT).communicate()[0].split("\n"))
-            if len(x) > 0][0])
-      except:
-        self.cached_versions.set("versions", language, "Unknown version")
+    if skip_language_checks:
+      if self.cached_versions.has_option("versions", language):
+        language_config["version"] = self.cached_versions.get("versions",
+            language)
+        self.enabled_languages[language] = language_config
+      return
 
-    language_config["version"] = self.cached_versions.get("versions", language)
+    try:
+      language_config["version"] = [x for x in (x.strip()
+          for x in subprocess.Popen([language_config["binary"],
+          language_config.get("version_switch", "--version")],
+          stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0
+          ].split("\n")) if len(x) > 0][0]
+    except:
+      language_config["version"] = "Unknown version"
 
-    if not skip_language_checks:
-      self.log_method("Initializing %s - %s" % (language_config["visible_name"],
-          language_config["version"]))
+    self.log_method("Initializing %s - %s" % (language_config["visible_name"],
+        language_config["version"]))
 
-    if skip_language_checks or self._safe_language(config_file, language_config,
-        language):
-      self.enabled_languages[language] = language_config
+    if not self._safe_language(config_file, language_config, language):
+      if self.cached_versions.has_option("versions", language):
+        self.cached_versions.remove_option("versions", language)
+        self.cached_versions_needs_flush = True
+      return
+
+    if not self.cached_versions_needs_flush:
+      if self.cached_versions.has_option("versions", language):
+        if self.cached_versions.get("versions", language) != language_config[
+            "version"]:
+          self.cached_versions_needs_flush = True
+      else:
+        self.cached_versions_needs_flush = True
+
+    if self.cached_versions_needs_flush:
+      self.cached_versions.set("versions", language,
+          language_config["version"])
+
+    self.enabled_languages[language] = language_config
 
   def _safe_language(self, config_file, lang_config, language):
     return safe_language_check(config_file, language,

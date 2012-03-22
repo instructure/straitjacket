@@ -79,10 +79,7 @@ def webapp(wrapper=None, config_dir=DEFAULT_CONFIG_DIR,
       for lang in wrapper.enabled_languages:
         languages[lang] = {
             "visible_name": wrapper.enabled_languages[lang]["visible_name"],
-            "version": wrapper.enabled_languages[lang]["version"],
-            "execution_profile": wrapper.enabled_languages[lang][
-                "execution_profile"].__class__.__name__
-          }
+            "version": wrapper.enabled_languages[lang]["version"]}
       return json.dumps({"languages": languages})
 
   app = web.application((

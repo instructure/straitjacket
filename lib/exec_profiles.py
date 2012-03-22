@@ -17,7 +17,11 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import time, os, subprocess, threading, base64, LibAppArmor, shutil
+import time, os, subprocess, threading, base64, shutil
+try:
+  import LibAppArmor
+except ImportError:
+  LibAppArmor = None
 
 __author__ = "JT Olds"
 __copyright__ = "Copyright 2011 Instructure, Inc."
@@ -28,7 +32,7 @@ class Error_(Exception): pass
 class AppArmorProtectionFailure(Error_): pass
 
 def aa_change_onexec(profile):
-  if LibAppArmor.aa_change_onexec(profile) != 0:
+  if LibAppArmor is None or LibAppArmor.aa_change_onexec(profile) != 0:
     raise AppArmorProtectionFailure, ("failed to switch to apparmor profile %s"
         % profile)
 
