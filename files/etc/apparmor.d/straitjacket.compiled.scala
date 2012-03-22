@@ -5,7 +5,8 @@ profile straitjacket/compiled/scala {
   #include <abstractions/straitjacket-base>
   #include <abstractions/straitjacket-jvm>
 
-  /usr/bin/scala r,
+  /usr/bin/scala rix,
+  /usr/lib/jvm/*/bin/java rix,
   /var/local/straitjacket/tmp/source/?*/?* r,
 
 }
