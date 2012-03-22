@@ -6,6 +6,7 @@ profile straitjacket/compiler/go {
   #include <abstractions/straitjacket-gcc>
 
   /var/local/straitjacket/tmp/source/?*/?* r,
+  /var/local/straitjacket/tmp/source/?*/?*.o rw,
   /var/local/straitjacket/tmp/compiler/?* rw,
 
   /usr/bin/golang-g rix,
