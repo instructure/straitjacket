@@ -18,9 +18,7 @@
 #
 
 import os, sys
-root_dir = os.path.realpath(os.path.dirname(__file__))
-os.chdir(root_dir)
-sys.path.append(root_dir)
+sys.path.append(os.path.realpath(os.path.dirname(__file__)))
 from server import webapp
 
 application = webapp(skip_language_checks=True).wsgifunc()

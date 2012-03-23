@@ -17,7 +17,7 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import web, json
+import web, json, os
 from lib import straitjacket
 
 __author__ = "JT Olds"
@@ -25,7 +25,8 @@ __copyright__ = "Copyright 2011 Instructure, Inc."
 __license__ = "AGPLv3"
 __email__ = "jt@instructure.com"
 
-DEFAULT_CONFIG_DIR = "config"
+DEFAULT_CONFIG_DIR = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+    "config")
 
 INDEX_HTML = """
 <h1>welcome to straitjacket</h1>
