@@ -7,10 +7,8 @@ profile straitjacket/compiler/go {
 
   /var/local/straitjacket/tmp/source/?*/?* r,
   /var/local/straitjacket/tmp/source/?*/?*.o rw,
-  /var/local/straitjacket/tmp/compiler/?* rw,
+  /var/local/straitjacket/tmp/compiler/?** rw,
 
-  /usr/bin/golang-g rix,
-  /usr/bin/golang-l rix,
-  /usr/bin/6g rix,
-  /usr/bin/6l rix,
+  /usr/share/go/** rix,
+  /usr/lib/go/** rix,
 }
