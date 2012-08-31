@@ -1,6 +1,6 @@
-  set rlimit fsize <= 32M,
+  set rlimit fsize <= 64M,
   set rlimit nproc <= 500,
-  set rlimit as <= 768M,
+  set rlimit as <= 1536M,
 
 # 1 greater than max
   set rlimit nofile <= 501,
