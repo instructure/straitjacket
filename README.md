@@ -44,6 +44,12 @@ A sample client library is provided in the samples directory (it's what
 Installation
 =====
 
+AMI
+-----
+
+If you'd rather just ignore all of the following and use a pre-existing Amazon
+Web Services AMI, try looking for ami-8de553e4
+
 Dependencies
 -----
 
