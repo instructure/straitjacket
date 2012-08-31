@@ -162,9 +162,14 @@ class CompilerProfile(BaseProfile):
 
       os.rename(compiler_file, executable_file)
 
+      if lang_conf.has_key("compiled_apparmor_profile"):
+        compiled_profile = lang_conf["compiled_apparmor_profile"]
+      else:
+        compiled_profile = self.config.get("default-apparmor-profiles",
+            "compiled")
+
       return self._run_user_program(["straitjacket-binary"], stdin,
-          self.config.get("default-apparmor-profiles", "compiled"),
-          time.time() - compile_start_time, executable_file,
+          compiled_profile, time.time() - compile_start_time, executable_file,
           custom_timelimit=custom_timelimit)
     finally:
       shutil.rmtree(source_dir)
