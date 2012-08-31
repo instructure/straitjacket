@@ -7,8 +7,8 @@
 #  set rlimit cpu <= 15,
 
   set rlimit fsize <= 0,
-  set rlimit data <= 64M,
-  set rlimit stack <= 64M,
+  set rlimit data <= 80M,
+  set rlimit stack <= 80M,
   set rlimit core <= 0,
   set rlimit rss <= 5,
   set rlimit memlock <= 0,
@@ -19,7 +19,7 @@
   set rlimit rtprio <= 0,
 
 # larger for DLLs
-  set rlimit as <= 256M,
+  set rlimit as <= 300M,
 
 # 1 greater than max
   set rlimit nofile <= 101,
