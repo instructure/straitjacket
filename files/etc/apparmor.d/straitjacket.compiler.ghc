@@ -13,12 +13,12 @@ profile straitjacket/compiler/ghc {
   /bin/dash rix,
   /usr/bin/straitjacket-compiler-ghc r,
 
-  /usr/lib/ghc-*/**.o mr,
-  /usr/lib/ghc-*/bin/ghc-* rix,
-  /usr/lib/ghc-*/lib/ghc rix,
-  /usr/lib/ghc-*/lib/runghc rix,
+  /usr/lib/ghc{-*,}/**.o mr,
+  /usr/lib/ghc{-*,}/bin/ghc-* rix,
+  /usr/lib/ghc{-*,}/lib/ghc rix,
+  /usr/lib/ghc{-*,}/lib/runghc rix,
   /usr/lib/*/gconf/UTF-*.so mr,
-  /var/lib/ghc-*/package.conf.d/package.cache r,
+  /var/lib/ghc{-*,}/package.conf.d/package.cache r,
 
   /usr/bin/gcc* rix,
 
