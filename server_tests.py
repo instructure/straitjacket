@@ -131,18 +131,18 @@ class StraitJacketTests(TestCase):
         "import time\ntime.sleep(20)"), (-9, "runtime_timelimit"))
 
   def testVMProfileErrors(self):
-    self.assertEquals(wrapper.enabled_languages["scala"][
+    self.assertEquals(wrapper.enabled_languages["java"][
         "execution_profile"].__class__.__name__, "VMProfile")
-    self.assertEquals(self.sj_run("scala",
-        "object Main extends Application { 0 }"), (0, ""))
-    self.assertEquals(self.sj_run("scala",
+    self.assertEquals(self.sj_run("java",
+        "class Main { public static void main(String[] args) { } }"), (0, ""))
+    self.assertEquals(self.sj_run("java",
         "object extends { 0 }"), (1, "compilation_error"))
-    self.assertEquals(self.sj_run("scala",
-        "object Main extends Application { throw new Exception(\"whoops\")}"),
-        (1, "runtime_error"))
-    self.assertEquals(self.sj_run("scala",
-        "object Main extends Application { Thread.sleep(20000) }"),
-        (-9, "runtime_timelimit"))
+    self.assertEquals(self.sj_run("java",
+        "class Main { public static void main(String[] args) throws Exception "
+        "{ throw new Exception(); } }"), (1, "runtime_error"))
+    self.assertEquals(self.sj_run("java",
+        "class Main { public static void main(String[] args) throws Exception "
+        "{ Thread.sleep(20000); } }"), (-9, "runtime_timelimit"))
 
 
 if __name__ == "__main__": unittest.main()
