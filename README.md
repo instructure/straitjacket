@@ -57,7 +57,7 @@ You will need to install all of the appropriate files for each language you want
 to run. On Ubuntu 12.04, suggested packages include but are not limited to:
 
 gcc, mono-gmcs, g++, guile-1.8, ghc, lua5.1, ocaml, php5, python, ruby,
-ruby1.9, scala, racket, golang, openjdk-6-jdk
+ruby1.9, scala, racket, golang, openjdk-6-jdk, gfortran
 
 You'll probably want to get nodejs and DMD from elsewhere.
 http://dlang.org/download.html

@@ -9,5 +9,6 @@
   /usr/lib/**/cc1 rix,
   /usr/lib/**/cc1plus rix,
   /usr/lib/**/collect2 rix,
+  /usr/lib/gcc/** rix,
   /proc/meminfo r,
   /usr/include/** r,
