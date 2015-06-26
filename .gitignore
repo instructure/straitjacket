@@ -2,3 +2,5 @@
 src/*.o
 src/*.so
 config/cached_versions.conf
+.vagrant
+btrfs-fs.vdi
