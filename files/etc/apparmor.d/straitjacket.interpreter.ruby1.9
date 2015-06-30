@@ -8,5 +8,8 @@ profile straitjacket/interpreter/ruby1.9 {
 # what the heck ruby
   set rlimit nproc <= 300,
 
+  /usr/local/lib/ruby/*/**.rb r,
+  /usr/local/lib/ruby/*/**.so rm,
+
   /var/local/straitjacket/tmp/source/?*/?* r,
 }

@@ -32,3 +32,6 @@
 ## is always 5 or lower niceness.
 ## TODO: revisit
 #  set rlimit nice <= 5,
+
+/src/ r,
+/src/** r,

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+mcs -out:/build/main.exe $1
+mono /build/main.exe

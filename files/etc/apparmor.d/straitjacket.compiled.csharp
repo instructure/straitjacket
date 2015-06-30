@@ -5,10 +5,10 @@ profile straitjacket/compiled/csharp {
   #include <abstractions/straitjacket-base>
   #include <abstractions/straitjacket-mono>
 
-  /usr/bin/mono rix,
+  /usr/bin/*mono* rix,
+  /usr/bin/mcs rix,
   /usr/lib/mono/** r,
 
-  /var/local/straitjacket/lib/getpwuid_r_hijack.so rm,
-  /var/local/straitjacket/tmp/source/?*/?* r,
-
+  /build-run r,
+  /build/** rwm,
 }
