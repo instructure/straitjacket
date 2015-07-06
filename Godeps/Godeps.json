@@ -3,11 +3,6 @@
 	"GoVersion": "go1.3",
 	"Deps": [
 		{
-			"ImportPath": "code.google.com/p/goconf/conf",
-			"Comment": "null-17",
-			"Rev": "a4db5c465ed1c5d7a1ca805593ac77c067920722"
-		},
-		{
 			"ImportPath": "github.com/codegangsta/negroni",
 			"Comment": "v0.1-70-gc7477ad",
 			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
@@ -23,6 +18,10 @@
 		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "9cb89f07ca03c6a28d1e237ba033bc6a29422fd6"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "7ad95dd0798a40da1ccdff6dff35fd177b5edf40"
 		}
 	]
 }
