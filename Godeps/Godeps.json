@@ -1,6 +1,6 @@
 {
 	"ImportPath": "straitjacket",
-	"GoVersion": "go1.3",
+	"GoVersion": "go1.4.2",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/negroni",
