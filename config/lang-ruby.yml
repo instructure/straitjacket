@@ -1,0 +1,28 @@
+name: Ruby
+visible_name: Ruby 2.2
+apparmor_profile: straitjacket/interpreter/ruby1.9
+filename: source.rb
+docker_image: rtest
+
+tests:
+  simple:
+    source: |
+      puts "hi from #{$stdin.read}"
+    stdin: ruby
+    stdout: "hi from ruby\n"
+    stderr:
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      puts File.read('/etc/hosts')
+    stdout:
+    stderr: Permission denied - /etc/hosts (Errno::EACCES)
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      x = [0] * 1073741824
+    stdout:
+    stderr: failed to allocate memory (NoMemoryError)
+    exitstatus: 1

@@ -6,11 +6,11 @@ import(
 )
 
 type Straitjacket struct {
-  Languages []Language
+  Languages []*Language
 }
 
 func LoadConfig(confPath string) (result Straitjacket, err error) {
-  configs, err := filepath.Glob(confPath + "/lang-*.conf")
+  configs, err := filepath.Glob(confPath + "/lang-*.yml")
   if err != nil {
     return
   }
@@ -21,9 +21,10 @@ func LoadConfig(confPath string) (result Straitjacket, err error) {
   }
 
   for _, config := range configs {
-    var lang Language
+    var lang *Language
     lang, err = LoadLanguage(config)
     if err != nil {
+      err = fmt.Errorf("Error loading language '%s': %s", config, err)
       // fail everything if one language fails to load
       return
     }

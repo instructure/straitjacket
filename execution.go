@@ -6,6 +6,7 @@ import(
   "io/ioutil"
   "os"
   "fmt"
+  "strings"
 )
 
 var(
@@ -32,7 +33,7 @@ func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
   defer os.RemoveAll(dir)
 
   check(os.Chmod(dir, 0777))
-  err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, lang.filename), []byte(opts.Source), 0644)
+  err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, lang.Filename), []byte(opts.Source), 0644)
   if err != nil {
     return
   }
@@ -44,8 +45,10 @@ func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
 
   container, err := client.CreateContainer(docker.CreateContainerOptions{
     Config: &docker.Config{
-      Image: lang.docker_image,
-      Cmd: []string{fmt.Sprintf("/src/%s", lang.filename)},
+      Image: lang.DockerImage,
+      Cmd: []string{fmt.Sprintf("/src/%s", lang.Filename)},
+      OpenStdin: true,
+      StdinOnce: true,
     },
   })
   if err != nil {
@@ -53,33 +56,43 @@ func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
   }
   defer client.RemoveContainer(docker.RemoveContainerOptions{ ID: container.ID, Force: true })
 
-  err = client.StartContainer(container.ID, &docker.HostConfig{
-    Binds: []string{fmt.Sprintf("%s:/src:ro", dir)},
-    SecurityOpt: []string{fmt.Sprintf("apparmor:%s", lang.apparmor_profile)},
-  })
-  if err != nil {
-    return
-  }
+  sentinel := make(chan struct{})
+  runResult := make(chan error)
 
-  result.ExitCode, err = client.WaitContainer(container.ID)
-  if err != nil {
-    return
-  }
+  go func() {
+    _ = <- sentinel
+    // when we get the sentinel, we know we've attached in the main thread
+    err := client.StartContainer(container.ID, &docker.HostConfig{
+      Binds: []string{fmt.Sprintf("%s:/src:ro", dir)},
+      SecurityOpt: []string{fmt.Sprintf("apparmor:%s", lang.ApparmorProfile)},
+    })
+    sentinel <- struct{}{}
 
+    if err == nil {
+      result.ExitCode, err = client.WaitContainer(container.ID)
+    }
+    runResult <- err
+  }()
+
+  stdin := strings.NewReader(opts.Stdin)
   var stdout, stderr bytes.Buffer
-  err = client.Logs(docker.LogsOptions{
+  err = client.AttachToContainer(docker.AttachToContainerOptions{
     Container: container.ID,
+    InputStream: stdin,
     OutputStream: &stdout,
     ErrorStream: &stderr,
+    Stream: true,
+    Stdin: true,
     Stdout: true,
     Stderr: true,
+    Success: sentinel,
   })
-  if err != nil {
-    return
-  }
 
-  result.Stdout = stdout.String()
-  result.Stderr = stderr.String()
+  if err == nil {
+    result.Stdout = stdout.String()
+    result.Stderr = stderr.String()
+    err = <- runResult
+  }
 
   return
 }

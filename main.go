@@ -19,17 +19,19 @@ func main() {
   straitjacket, err := LoadConfig("config")
   check(err)
   for _, lang := range straitjacket.Languages {
-    if lang.name == os.Args[1] {
-      test_source, _ := lang.config.GetString("test-simple", "source")
+    if lang.Name == os.Args[1] {
+      test := lang.Tests.Simple
       result, err := lang.Run(&RunOptions{
-        Source: test_source,
+        Source: test.Source,
+        Stdin: test.Stdin,
       })
       check(err)
       fmt.Printf("status was: %d\n", result.ExitCode)
       fmt.Printf("%s", result.Stdout)
+      fmt.Printf("%s", result.Stderr)
       return
     }
   }
 
-  fmt.Printf("language %s not found", os.Args[1])
+  fmt.Printf("language %s not found\n", os.Args[1])
 }
