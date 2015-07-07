@@ -46,7 +46,18 @@ Development
 -----------
 
 There is a Vagrantfile provided for devloping Straitjacket. Run `vagrant up` to
-build the image, then `vagrant ssh` in and `cd straitjacket` to start working.
+build the image.
+
+To run straitjacket locally for development, ssh into the VM with `vagrant ssh` and run:
+
+    cd straitjacket
+    ./straitjacket-setup.sh
+    ./run-dev.sh
+
+This will listen on port 8081, which is forwarded to the host machine.
+
+You'll need to re-run `straitjacket-setup.sh` any time you add/modify a language
+apparmor profile or docker image. New docker images need to be added there, as well.
 
 AMI
 -----

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cp -R files/etc/apparmor.d/* /etc/apparmor.d/
-service apparmor reload

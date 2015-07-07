@@ -19,11 +19,7 @@ systemctl enable docker
 
 cd /home/ubuntu/straitjacket
 
-./install_apparmor_profiles
-
-docker build -t cstest languages/csharp
-docker build -t jstest languages/nodejs
-docker build -t rtest languages/ruby
+./straitjacket-setup.sh
 
 docker build -t straitjacket .
 docker run -d --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -p 8081:8081 straitjacket

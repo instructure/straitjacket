@@ -3,7 +3,7 @@ visible_name: JavaScript (nodejs 0.12)
 version: 0.12
 apparmor_profile: straitjacket/interpreter/node
 filename: source.js
-docker_image: jstest
+docker_image: straitjacket-nodejs
 
 tests:
   simple:
