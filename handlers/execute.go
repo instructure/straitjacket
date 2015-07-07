@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"straitjacket/engine"
 )
 
 type ExecutionResult struct {
-	STDOut     string `json:"stdout"`
-	STDErr     string `json:"stderr"`
+	Stdout     string `json:"stdout"`
+	Stderr     string `json:"stderr"`
 	ExitStatus int    `json:"exit_status"`
 	Time       string `json:"time"`
 	Error      string `json:"error"`
@@ -17,16 +18,30 @@ type ExecutionResult struct {
 func ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 
-	lang := req.PostForm["language"]
-	source := req.PostForm["source"]
-	stdin := req.PostForm["stdin"]
-	timelimit := req.PostForm["timelimit"]
+	languageName := req.PostFormValue("language")
+	source := req.PostFormValue("source")
+	stdin := req.PostFormValue("stdin")
+	timelimit := req.PostFormValue("timelimit")
 
-	log.Println(lang, source, stdin, timelimit)
+	log.Println(languageName, source, stdin, timelimit)
+
+	language, err := engine.TheEngine.FindLanguage(languageName)
+	if err != nil {
+		panic(err)
+	}
+
+	runResult, err := language.Run(&engine.RunOptions{
+		Source: source,
+		Stdin:  stdin,
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	result := ExecutionResult{
-		STDOut:     "Fake Return",
-		ExitStatus: 0,
+		Stdout:     runResult.Stdout,
+		Stderr:     runResult.Stderr,
+		ExitStatus: runResult.ExitCode,
 	}
 	json, err := json.Marshal(result)
 	if err != nil {

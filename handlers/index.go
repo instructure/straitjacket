@@ -20,9 +20,9 @@ const WELCOME_HTML = `
 						<dt>language:</dt>
 						<dd>
 								<select name="language">
-										<option value="javascript">JavaScript</option>
-										<option value="csharp">C#</option>
-										<option value="ruby">Ruby</option>
+										<option value="Javascript">JavaScript</option>
+										<option value="C#">C#</option>
+										<option value="Ruby">Ruby</option>
 								</select>
 						</dd>
 				</dl>

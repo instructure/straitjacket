@@ -1,4 +1,4 @@
-package main
+package engine
 
 import (
 	"bytes"
@@ -33,7 +33,10 @@ func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
 	}
 	defer os.RemoveAll(dir)
 
-	check(os.Chmod(dir, 0777))
+	err = os.Chmod(dir, 0777)
+	if err != nil {
+		return
+	}
 	err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, lang.Filename), []byte(opts.Source), 0644)
 	if err != nil {
 		return

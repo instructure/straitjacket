@@ -1,15 +1,18 @@
-package main
+package engine
 
 import (
 	"fmt"
 	"path/filepath"
 )
 
-type Straitjacket struct {
+// good times global
+var TheEngine Engine
+
+type Engine struct {
 	Languages []*Language
 }
 
-func LoadConfig(confPath string) (result Straitjacket, err error) {
+func LoadConfig(confPath string) (result Engine, err error) {
 	configs, err := filepath.Glob(confPath + "/lang-*.yml")
 	if err != nil {
 		return
@@ -32,4 +35,13 @@ func LoadConfig(confPath string) (result Straitjacket, err error) {
 	}
 
 	return
+}
+
+func (engine *Engine) FindLanguage(name string) (*Language, error) {
+	for _, lang := range engine.Languages {
+		if lang.Name == name {
+			return lang, nil
+		}
+	}
+	return nil, fmt.Errorf("Language '%s' not found", name)
 }
