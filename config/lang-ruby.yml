@@ -10,7 +10,7 @@ tests:
     source: |
       puts "hi from #{$stdin.read}"
     stdin: ruby
-    stdout: "hi from ruby\n"
+    stdout: "\\Ahi from ruby\n\\z"
     stderr:
     exitstatus: 0
 
@@ -18,12 +18,12 @@ tests:
     source: |
       puts File.read('/etc/hosts')
     stdout:
-    stderr: Permission denied - /etc/hosts (Errno::EACCES)
+    stderr: "Permission denied @ rb_sysopen - /etc/hosts \\(Errno::EACCES\\)"
     exitstatus: 1
 
   rlimit:
     source: |
       x = [0] * 1073741824
     stdout:
-    stderr: failed to allocate memory (NoMemoryError)
+    stderr: "failed to allocate memory \\(NoMemoryError\\)"
     exitstatus: 1

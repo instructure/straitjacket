@@ -13,7 +13,7 @@ tests:
            System.Console.WriteLine("hey c# world, sup?");
          }
        }
-    stdout: hey c# world, sup?\n
+    stdout: "\\Ahey c# world, sup\\?\n\\z"
     stderr:
     exitstatus: 0
 
@@ -21,7 +21,7 @@ tests:
     source: |
       public class TestRLimit {
         public static void Main() {
-          int[] numbers: new int[1073741824];
+          int[] numbers = new int[1073741824];
         }
       }
     stdout:
@@ -33,7 +33,7 @@ tests:
       using System; using System.IO;
       public class TestAppArmor {
         public static void Main() {
-          TextReader tr: new StreamReader("/etc/passwd");
+          TextReader tr = new StreamReader("/etc/passwd");
           Console.WriteLine(tr.ReadLine());
           tr.Close();
         }

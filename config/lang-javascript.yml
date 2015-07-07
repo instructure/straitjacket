@@ -10,13 +10,13 @@ tests:
     source: |
       function test() { console.log("hello js"); };
       test();
-    stdout: hello js\n
+    stdout: "\\Ahello js\n\\z"
     stderr:
     exitstatus: 0
 
   apparmor:
     source: |
-      var fs: require('fs');
+      var fs = require('fs');
       fs.readFile('/etc/hosts', function (err, data) {
         if (err) throw err;
         console.log(data.toString());
@@ -27,10 +27,10 @@ tests:
 
   rlimit:
     source: |
-      var buffer1: new Buffer(536870912);
-      var buffer2: new Buffer(536870912);
-      var buffer3: new Buffer(536870912);
+      var buffer1 = new Buffer(536870912);
+      var buffer2 = new Buffer(536870912);
+      var buffer3 = new Buffer(536870912);
       console.log(buffer1.length + buffer2.length + buffer3.length);
     stdout:
-    stderr: "terminate called after throwing an instance of 'std::bad_alloc'"
-    exitstatus: -6
+    stderr: Out Of Memory
+    exitstatus: 139

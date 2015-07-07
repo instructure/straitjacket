@@ -3,12 +3,14 @@ package engine
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 
 	"gopkg.in/yaml.v2"
 )
 
 type Test struct {
-	Source, Stdin, Stdout, Stderr, ExitStatus string
+	Source, Stdin, Stdout, Stderr string
+	ExitStatus                    int
 }
 
 type Tests struct {
@@ -51,4 +53,48 @@ func LoadLanguage(configName string) (lang *Language, err error) {
 		err = lang.validate()
 	}
 	return
+}
+
+func (lang *Language) runTests() (err error) {
+	err = lang.runTest("simple", &lang.Tests.Simple)
+	if err == nil {
+		err = lang.runTest("apparmor", &lang.Tests.Apparmor)
+	}
+	if err == nil {
+		err = lang.runTest("rlimit", &lang.Tests.Rlimit)
+	}
+	return
+}
+
+func (lang *Language) runTest(testName string, test *Test) error {
+	result, err := lang.Run(&RunOptions{
+		Source: test.Source,
+		Stdin:  test.Stdin,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if result.ExitCode != test.ExitStatus {
+		return fmt.Errorf("Failure testing '%s' (%s), expected exit status: %d got: %d", lang.Name, testName, test.ExitStatus, result.ExitCode)
+	}
+
+	match, err := regexp.MatchString(test.Stderr, result.Stderr)
+	if err != nil {
+		return err
+	}
+	if match == false {
+		return fmt.Errorf("Failure testing '%s' (%s), got stderr: %o", lang.Name, testName, result.Stderr)
+	}
+
+	match, err = regexp.MatchString(test.Stdout, result.Stdout)
+	if err != nil {
+		return err
+	}
+	if match == false {
+		return fmt.Errorf("Failure testing '%s' (%s), got stdout: %o", lang.Name, testName, result.Stdout)
+	}
+
+	return nil
 }
