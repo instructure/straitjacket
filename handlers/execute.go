@@ -16,12 +16,10 @@ type ExecutionResult struct {
 }
 
 func ExecuteHandler(res http.ResponseWriter, req *http.Request) {
-	req.ParseForm()
-
-	languageName := req.PostFormValue("language")
-	source := req.PostFormValue("source")
-	stdin := req.PostFormValue("stdin")
-	timelimit := req.PostFormValue("timelimit")
+	languageName := req.FormValue("language")
+	source := req.FormValue("source")
+	stdin := req.FormValue("stdin")
+	timelimit := req.FormValue("timelimit")
 
 	log.Println(languageName, source, stdin, timelimit)
 
