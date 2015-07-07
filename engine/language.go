@@ -18,6 +18,7 @@ type Tests struct {
 type Language struct {
 	Name            string
 	VisibleName     string `yaml:"visible_name"`
+	Version         string
 	Filename        string
 	DockerImage     string `yaml:"docker_image"`
 	ApparmorProfile string `yaml:"apparmor_profile"`

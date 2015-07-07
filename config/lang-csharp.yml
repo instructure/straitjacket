@@ -1,4 +1,6 @@
 name: C#
+visible_name: C# (mono)
+version: 4.0
 apparmor_profile: straitjacket/compiled/csharp
 filename: source.cs
 docker_image: cstest
