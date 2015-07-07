@@ -1,0 +1,31 @@
+name: python
+visible_name: Python 3.4
+version: 3.4
+apparmor_profile: straitjacket/interpreter/python
+filename: source.py
+docker_image: straitjacket-python
+
+tests:
+  simple:
+    source: |
+      import sys
+      print("hi from %s" % sys.stdin.read())
+    stdin: python
+    stdout: "hi from python\n"
+    stderr:
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      print(open("/etc/hosts", 'r').read())
+    stdout:
+    stderr: "Permission denied: '/etc/hosts'"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      import os
+      print(os.fork())
+    stdout:
+    stderr: 'BlockingIOError: \[Errno 11\] Resource temporarily unavailable'
+    exitstatus: 1
