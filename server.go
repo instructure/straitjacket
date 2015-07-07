@@ -1,23 +1,33 @@
 package main
 
 import (
+	"straitjacket/engine"
+	"straitjacket/handlers"
+
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"straitjacket/handlers"
 )
 
-func NewServerStack() *negroni.Negroni {
+func newServerStack() *negroni.Negroni {
+	theEngine, err := engine.LoadConfig("config")
+	if err != nil {
+		panic(err)
+	}
+	context := &handlers.Context{
+		Engine: theEngine,
+	}
+
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", handlers.IndexHandler)
-	router.HandleFunc("/execute", handlers.ExecuteHandler)
-	router.HandleFunc("/info", handlers.InfoHandler)
+	router.HandleFunc("/", context.IndexHandler)
+	router.HandleFunc("/execute", context.ExecuteHandler)
+	router.HandleFunc("/info", context.InfoHandler)
 
 	server := negroni.New(negroni.NewRecovery(), negroni.NewLogger())
 	server.UseHandler(router)
 	return server
 }
 
-func StartServer(addr string) {
-	server := NewServerStack()
+func startServer(addr string) {
+	server := newServerStack()
 	server.Run(addr)
 }

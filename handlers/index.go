@@ -32,7 +32,7 @@ const WELCOME_HTML = `
 </html>
 `
 
-func IndexHandler(res http.ResponseWriter, req *http.Request) {
+func (ctx *Context) IndexHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "text/html")
 	_, err := res.Write([]byte(WELCOME_HTML))
 	if err != nil {

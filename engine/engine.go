@@ -5,9 +5,6 @@ import (
 	"path/filepath"
 )
 
-// good times global
-var TheEngine Engine
-
 type Engine struct {
 	Languages []*Language
 }

@@ -15,7 +15,7 @@ type ExecutionResult struct {
 	Error      string `json:"error"`
 }
 
-func ExecuteHandler(res http.ResponseWriter, req *http.Request) {
+func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	languageName := req.FormValue("language")
 	source := req.FormValue("source")
 	stdin := req.FormValue("stdin")
@@ -23,7 +23,7 @@ func ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 
 	log.Println(languageName, source, stdin, timelimit)
 
-	language, err := engine.TheEngine.FindLanguage(languageName)
+	language, err := ctx.Engine.FindLanguage(languageName)
 	if err != nil {
 		panic(err)
 	}

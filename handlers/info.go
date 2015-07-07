@@ -15,7 +15,7 @@ type RuntimeOptions struct {
 	Options []Option `json:"languages"`
 }
 
-func InfoHandler(res http.ResponseWriter, req *http.Request) {
+func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 
 	// TODO: read config directory for language options
