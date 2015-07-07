@@ -8,6 +8,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define 'straitjacket'
   config.vm.box = "ubuntu/vivid64"
 
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
+
   config.vm.provider 'virtualbox' do |v|
     v.memory = 2048
     v.cpus = 2
