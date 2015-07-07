@@ -1,0 +1,52 @@
+{
+  "builders": [
+    {
+      "name": "straitjacket",
+      "type": "amazon-ebs",
+      "source_ami": "ami-25d4ee15",
+      "ami_name": "straitjacket-{{isotime | clean_ami_name}}",
+      "ami_virtualization_type": "hvm",
+      "tags": {
+        "Name": "straitjacket"
+      },
+      "region": "us-west-2",
+      "instance_type": "m3.medium",
+      "enhanced_networking": true,
+      "ssh_username": "ubuntu",
+      "vpc_id": "vpc-f9fb339c",
+      "subnet_id": "subnet-2f10ea58",
+      "associate_public_ip_address": true,
+      "ami_block_device_mappings": [
+        {
+          "device_name": "/dev/sdb",
+          "volume_type": "gp2",
+          "volume_size": 64,
+          "delete_on_termination": true
+        }
+      ],
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/sdb",
+          "volume_type": "gp2",
+          "volume_size": 64,
+          "delete_on_termination": true
+        }
+      ]
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "straitjacket.tar",
+      "destination": "/home/ubuntu/straitjacket.tar"
+    },
+    {
+      "type": "shell",
+      "execute_command": "{{ .Vars }} sudo -E bash '{{ .Path }}'",
+      "scripts": [
+        "packer/setup.sh"
+      ]
+    }
+  ]
+}
