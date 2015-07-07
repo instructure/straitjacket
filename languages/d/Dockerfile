@@ -1,4 +1,4 @@
-FROM mono:4.0
+FROM ibuclaw/gdc:4.9-v2.066
 
 ADD build-run /build-run
 RUN chmod +x /build-run

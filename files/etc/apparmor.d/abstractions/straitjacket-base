@@ -35,3 +35,7 @@
 
 /src/ r,
 /src/** r,
+/build-run r,
+/build/ r,
+/build/** rwm,
+/build/** rix,

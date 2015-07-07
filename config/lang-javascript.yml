@@ -11,7 +11,7 @@ tests:
       function test() { console.log("hello js"); };
       test();
     stdout: "\\Ahello js\n\\z"
-    stderr:
+    stderr: "\\A\\z"
     exitstatus: 0
 
   apparmor:

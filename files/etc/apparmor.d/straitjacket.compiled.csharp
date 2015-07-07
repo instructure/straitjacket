@@ -8,7 +8,4 @@ profile straitjacket/compiled/csharp {
   /usr/bin/*mono* rix,
   /usr/bin/mcs rix,
   /usr/lib/mono/** r,
-
-  /build-run r,
-  /build/** rwm,
 }

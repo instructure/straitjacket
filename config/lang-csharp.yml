@@ -14,7 +14,7 @@ tests:
          }
        }
     stdout: "\\Ahey c# world, sup\\?\n\\z"
-    stderr:
+    stderr: "\\A\\z"
     exitstatus: 0
 
   rlimit:

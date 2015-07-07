@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+gdc -o /build/app $1
+/build/app

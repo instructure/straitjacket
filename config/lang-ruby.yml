@@ -11,7 +11,7 @@ tests:
       puts "hi from #{$stdin.read}"
     stdin: ruby
     stdout: "\\Ahi from ruby\n\\z"
-    stderr:
+    stderr: "\\A\\z"
     exitstatus: 0
 
   apparmor:

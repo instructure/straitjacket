@@ -1,0 +1,41 @@
+name: d
+visible_name: D (GDC)
+version: 4.9-v2.066
+apparmor_profile: straitjacket/compiler/d
+filename: source.d
+docker_image: straitjacket-d
+
+tests:
+  simple:
+    source: |
+      import std.stdio;
+      int main() {
+        std.stdio.writefln("Hello from D");
+        return 0;
+      }
+    stdout: "\\AHello from D\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      import std.stdio;
+      import std.file;
+      int main(char[][] args) {
+        std.stdio.writefln("%%s", cast(char[])read("/etc/hosts"));
+        return 0;
+      }
+    stdout:
+    stderr: "/etc/hosts: Permission denied"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      import std.stdio;
+      int main() {
+        char[] lotsomem = new char[1073741824];
+        return 0;
+      }
+    stdout:
+    stderr: core.exception.OutOfMemoryError
+    exitstatus: 1
