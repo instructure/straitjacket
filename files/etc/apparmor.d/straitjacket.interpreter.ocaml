@@ -1,0 +1,9 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/ocaml {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+
+  /usr/bin/ocaml* rix,
+  /var/local/straitjacket/tmp/source/?*/?* r,
+}

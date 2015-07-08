@@ -1,0 +1,42 @@
+name: ocaml
+visible_name: OCaml
+version: "3.12.1"
+apparmor_profile: straitjacket/interpreter/ocaml
+filename: source.ml
+docker_image: straitjacket-ocaml
+
+tests:
+  simple:
+    source: |
+      print_string "Hello from OCaml!\n";;
+    stdout: "\\AHello from OCaml!\\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      let rec build_list = fun (array, x) ->
+        if x = 0 then
+          array
+        else
+          build_list ( "x"::array, x - 1 )
+      ;;
+      build_list ( [], 1073741824 );;
+    stdout: "\\A\\z"
+    stderr: "\\AFatal error: out of memory.\\n\\z"
+    exitstatus: 2
+
+  apparmor:
+    source: |
+      let lines = ref [] in
+      let chan = open_in "/etc/hosts" in
+      try
+        while true; do
+          lines := input_line chan :: !lines
+        done; []
+      with End_of_file ->
+        close_in chan;
+        List.rev !lines
+    stdout: "\\A\\z"
+    stderr: "\\AException: Sys_error \"/etc/hosts: Permission denied\"\\.\\n\\z"
+    exitstatus: 2
