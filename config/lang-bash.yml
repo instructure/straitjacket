@@ -1,0 +1,30 @@
+name: bash
+visible_name: Bash 4.2
+version: "4.2"
+apparmor_profile: straitjacket/interpreter/default
+filename: source.sh
+docker_image: straitjacket-bash
+
+tests:
+  simple:
+    source: echo -n hello from bash
+    stdout: "\\Ahello from bash\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: while read line; do echo -e "$line\n"; done < /etc/hosts
+    stdout: "\\A\\z"
+    stderr: "line 1: /etc/hosts: Permission denied"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      fork() {
+        echo "hi from child"
+      }
+      fork & fork & fork &
+      wait
+    stdout: "\\A\\z"
+    stderr: "fork: retry: No child processes"
+    exitstatus: 137
