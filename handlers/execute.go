@@ -51,6 +51,7 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		Stderr:     runResult.Stderr,
 		ExitStatus: runResult.ExitCode,
 		Time:       runResult.RunTime.Seconds(),
+		Error:      runResult.ErrorString,
 	}
 	json, err := json.Marshal(result)
 	if err != nil {

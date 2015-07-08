@@ -25,6 +25,7 @@ type RunResult struct {
 	ExitCode       int
 	Stdout, Stderr string
 	RunTime        time.Duration
+	ErrorString    string
 }
 
 type execution struct {
@@ -51,6 +52,7 @@ func newExecution(lang *Language) (exe *execution, err error) {
 // Run the execution with the given options.
 func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
 	result = exe.result
+	timeout := false
 	defer exe.cleanup()
 
 	exe.tmpDir, err = writeFile(exe.lang.Filename, opts.Source)
@@ -66,9 +68,15 @@ func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
 		case err = <-runResult:
 			// pass
 		case <-time.After(time.Duration(opts.Timeout) * time.Second):
-			err = fmt.Errorf("Execution timed out")
+			timeout = true
 		}
 		result.RunTime = time.Now().Sub(startTime)
+	}
+
+	if timeout {
+		result.ErrorString = "runtime_timelimit"
+	} else if result.ExitCode != 0 {
+		result.ErrorString = "runtime_error"
 	}
 
 	return
