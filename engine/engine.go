@@ -42,14 +42,3 @@ func (engine *Engine) FindLanguage(name string) (*Language, error) {
 	}
 	return nil, fmt.Errorf("Language '%s' not found", name)
 }
-
-func (engine *Engine) RunTests() error {
-	for _, lang := range engine.Languages {
-		err := lang.runTests()
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}

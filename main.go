@@ -23,9 +23,12 @@ func runLanguageTests() {
 		panic(err)
 	}
 
-	err = theEngine.RunTests()
-	if err != nil {
-		panic(err)
+	for _, lang := range theEngine.Languages {
+		fmt.Printf("Testing %s\n", lang.VisibleName)
+		err := lang.RunTests()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	fmt.Printf("All languages A-OK\n")

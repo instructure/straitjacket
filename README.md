@@ -51,7 +51,7 @@ build the image.
 To run straitjacket locally for development, ssh into the VM with `vagrant ssh` and run:
 
     cd straitjacket
-    ./straitjacket-setup.sh
+    sudo ./straitjacket-setup.sh
     ./run-dev.sh
 
 This will listen on port 8081, which is forwarded to the host machine.

@@ -4,8 +4,8 @@ set -e
 cp -R files/etc/apparmor.d/* /etc/apparmor.d/
 service apparmor reload
 
-docker build -t straitjacket-csharp languages/csharp
-docker build -t straitjacket-nodejs languages/nodejs
-docker build -t straitjacket-ruby languages/ruby
-docker build -t straitjacket-d languages/d
-docker build -t straitjacket-python languages/python
+for language in languages/*; do
+  image_name=straitjacket-$(basename $language)
+  echo "Building image $image_name"
+  docker build -t $image_name $language
+done

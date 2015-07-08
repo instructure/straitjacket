@@ -55,7 +55,7 @@ func LoadLanguage(configName string) (lang *Language, err error) {
 	return
 }
 
-func (lang *Language) runTests() (err error) {
+func (lang *Language) RunTests() (err error) {
 	err = lang.runTest("simple", &lang.Tests.Simple)
 	if err == nil {
 		err = lang.runTest("apparmor", &lang.Tests.Apparmor)
