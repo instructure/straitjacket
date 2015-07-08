@@ -23,3 +23,4 @@ cd /home/ubuntu/straitjacket
 
 docker build -t straitjacket .
 docker run -d --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -p 8081:8081 straitjacket
+docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp --rm straitjacket --test

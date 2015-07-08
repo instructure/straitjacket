@@ -45,7 +45,7 @@
       "type": "shell",
       "execute_command": "{{ .Vars }} sudo -E bash '{{ .Path }}'",
       "scripts": [
-        "packer/setup.sh"
+        "deploy/setup.sh"
       ]
     }
   ]

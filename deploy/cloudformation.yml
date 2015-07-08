@@ -1,0 +1,138 @@
+Description: Straitjacket ASG
+
+Parameters:
+  KeyName:
+    Description: The name of the SSH key to use.
+    Type: String
+
+  AMI:
+    Description: The Straitjacket AMI ID.
+    Type: String
+
+  SecurityGroup:
+    Description: The SG to join.
+    Type: String
+
+  ElbSecurityGroup:
+    Description: The SG for the ELB to join.
+    Type: String
+
+  VpcAvailabilityZones:
+    Description: The list of availability zones to launch resources into.
+    Type: CommaDelimitedList
+
+  VpcSubnets:
+    Description: The list of VPC subnets to launch resources into.
+    Type: CommaDelimitedList
+
+  ElbSubnets:
+    Description: The list of VPC subnets to put the ELB in.
+    Type: CommaDelimitedList
+
+Resources:
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId:
+        Ref: AMI
+      SecurityGroups:
+        - Ref: SecurityGroup
+      KeyName:
+        Ref: KeyName
+      InstanceType: m3.medium
+
+  ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 1
+
+    Properties:
+      AvailabilityZones:
+        Ref: VpcAvailabilityZones
+      VPCZoneIdentifier:
+        Ref: VpcSubnets
+      LaunchConfigurationName:
+        Ref: LaunchConfig
+      MinSize: 3
+      MaxSize: 10
+      LoadBalancerNames:
+        - Ref: ELB
+
+  ELB:
+    Description: "The Load Balancer for this ASG"
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Subnets:
+        Ref: ElbSubnets
+      LoadBalancerName: straitjacket
+      HealthCheck:
+        HealthyThreshold: 2
+        UnhealthyThreshold: 2
+        Interval: 30
+        Timeout: 5
+        Target: "HTTP:8081/info"
+      CrossZone: true
+      SecurityGroups:
+        - Ref: SecurityGroup
+        - Ref: ElbSecurityGroup
+      Listeners:
+        - InstancePort: 8081
+          InstanceProtocol: HTTP
+          LoadBalancerPort: 80
+          Protocol: HTTP
+
+  ScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName:
+        Ref: ASG
+      Cooldown: 60
+      ScalingAdjustment: "1"
+
+  ScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName:
+        Ref: ASG
+      Cooldown: 60
+      ScalingAdjustment: "-1"
+
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: ScaleUpPolicy
+      EvaluationPeriods: "5"
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value:
+            Ref: ASG
+      MetricName: CPUUtilization
+      Namespace: "AWS/EC2"
+      Period: "60"
+      Statistic: Average
+      Threshold: "80"
+      Unit: Percent
+
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: ScaleDownPolicy
+      EvaluationPeriods: "5"
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value:
+            Ref: ASG
+      MetricName: CPUUtilization
+      Namespace: "AWS/EC2"
+      Period: "60"
+      Statistic: Average
+      Threshold: "40"
+      Unit: Percent
