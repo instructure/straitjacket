@@ -5,5 +5,6 @@ profile straitjacket/compiled/java {
   #include <abstractions/straitjacket-base>
   #include <abstractions/straitjacket-jvm>
 
-  /var/local/straitjacket/tmp/source/?*/?* r,
+  /etc/java-7-openjdk/jvm-amd64.cfg r,
+  /var/local/straitjacket/tmp/source/?*/?* rw,
 }

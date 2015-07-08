@@ -5,6 +5,7 @@
 # 1 greater than max
   set rlimit nofile <= 501,
 
+  /usr/lib/jvm/java-7-openjdk-amd64/bin/javac rix,
   /usr/lib/jvm/*/jre/bin/* rix,
   /usr/share/java*/**/*.jar r,
   /usr/share/java*/*.jar r,

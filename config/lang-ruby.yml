@@ -1,6 +1,6 @@
 name: ruby
 visible_name: Ruby 2.2
-version: 2.2
+version: "2.2"
 apparmor_profile: straitjacket/interpreter/ruby1.9
 filename: source.rb
 docker_image: straitjacket-ruby

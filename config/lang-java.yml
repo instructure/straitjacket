@@ -1,0 +1,52 @@
+name: java
+visible_name: Java 7 (OpenJDK)
+version: "1.7.0_79"
+apparmor_profile: straitjacket/compiled/java
+filename: Main.java
+docker_image: straitjacket-java
+
+tests:
+  simple:
+    source: |
+      public class Main {
+        public static void main(String[] args) {
+          System.out.println("Hello from Java");
+        }
+      }
+    stdout: "Hello from Java"
+    stderr:
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      public class Main {
+       public static void main(String[] args) {
+         int[] data = new int[1073741824];
+       }
+      }
+    stdout: "\\A\\z"
+    stderr: "Exception in thread \"main\" java.lang.OutOfMemoryError"
+    exitstatus: 1
+
+  apparmor:
+    source: |
+      import java.io.*;
+      public class Main {
+       public static void main(String[] args) {
+         try {
+           DataInputStream in = new DataInputStream(
+                                   new FileInputStream("/etc/hosts"));
+           BufferedReader br = new BufferedReader(new InputStreamReader(in));
+           String line;
+           while ((line = br.readLine()) != null) {
+             System.out.println(line);
+           }
+           in.close();
+         } catch (Exception e) {
+           System.err.println("SJ Error: " + e.getMessage());
+         }
+       }
+      }
+    stdout: "\\A\\z"
+    stderr: 'SJ Error: /etc/hosts \(Permission denied\)'
+    exitstatus: 0

@@ -1,6 +1,6 @@
 name: d
 visible_name: D (GDC)
-version: 4.9-v2.066
+version: "4.9-v2.066"
 apparmor_profile: straitjacket/compiler/d
 filename: source.d
 docker_image: straitjacket-d
