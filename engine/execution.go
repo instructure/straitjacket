@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -17,86 +18,159 @@ var (
 
 type RunOptions struct {
 	Source, Stdin string
+	Timeout       int64
 }
 
 type RunResult struct {
 	ExitCode       int
 	Stdout, Stderr string
+	RunTime        time.Duration
 }
 
-func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
-	result = &RunResult{}
+type execution struct {
+	lang      *Language
+	tmpDir    string
+	client    *docker.Client
+	container *docker.Container
+	sentinel  chan struct{}
+	result    *RunResult
+}
 
-	dir, err := ioutil.TempDir(tempdir, "straitjacket")
-	if err != nil {
-		return
-	}
-	defer os.RemoveAll(dir)
-
-	err = os.Chmod(dir, 0777)
-	if err != nil {
-		return
-	}
-	err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, lang.Filename), []byte(opts.Source), 0644)
-	if err != nil {
-		return
-	}
-
-	client, err := docker.NewClient(endpoint)
-	if err != nil {
-		return
+// Initialize a new exeuction object for use.
+func newExecution(lang *Language) (exe *execution, err error) {
+	exe = &execution{
+		lang:     lang,
+		sentinel: make(chan struct{}),
+		result:   &RunResult{},
 	}
 
-	container, err := client.CreateContainer(docker.CreateContainerOptions{
+	exe.client, err = docker.NewClient(endpoint)
+	return
+}
+
+// Run the execution with the given options.
+func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
+	result = exe.result
+	defer exe.cleanup()
+
+	exe.tmpDir, err = writeFile(exe.lang.Filename, opts.Source)
+
+	if err == nil {
+		err = exe.createContainer()
+	}
+
+	if err == nil {
+		startTime := time.Now()
+		runResult := exe.attachAndRun(opts.Stdin)
+		select {
+		case err = <-runResult:
+			// pass
+		case <-time.After(time.Duration(opts.Timeout) * time.Second):
+			err = fmt.Errorf("Execution timed out")
+		}
+		result.RunTime = time.Now().Sub(startTime)
+	}
+
+	return
+}
+
+func (exe *execution) createContainer() (err error) {
+	exe.container, err = exe.client.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
-			Image:     lang.DockerImage,
-			Cmd:       []string{fmt.Sprintf("/src/%s", lang.Filename)},
+			Image:     exe.lang.DockerImage,
+			Cmd:       []string{fmt.Sprintf("/src/%s", exe.lang.Filename)},
 			OpenStdin: true,
 			StdinOnce: true,
 		},
 	})
-	if err != nil {
-		return
-	}
-	defer client.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true})
 
+	return
+}
+
+func (exe *execution) attachAndRun(stdin string) chan error {
 	sentinel := make(chan struct{})
 	runResult := make(chan error)
+	attachResult := make(chan error)
+	finalResult := make(chan error)
 
+	// run goroutine
 	go func() {
 		_ = <-sentinel
-		// when we get the sentinel, we know we've attached in the main thread
-		err := client.StartContainer(container.ID, &docker.HostConfig{
-			Binds:       []string{fmt.Sprintf("%s:/src:ro", dir)},
-			SecurityOpt: []string{fmt.Sprintf("apparmor:%s", lang.ApparmorProfile)},
+		// when we get the sentinel, we know we've attached in the other goroutine
+		err := exe.client.StartContainer(exe.container.ID, &docker.HostConfig{
+			Binds:       []string{fmt.Sprintf("%s:/src:ro", exe.tmpDir)},
+			SecurityOpt: []string{fmt.Sprintf("apparmor:%s", exe.lang.ApparmorProfile)},
 		})
 		sentinel <- struct{}{}
 
 		if err == nil {
-			result.ExitCode, err = client.WaitContainer(container.ID)
+			exe.result.ExitCode, err = exe.client.WaitContainer(exe.container.ID)
 		}
 		runResult <- err
 	}()
 
-	stdin := strings.NewReader(opts.Stdin)
-	var stdout, stderr bytes.Buffer
-	err = client.AttachToContainer(docker.AttachToContainerOptions{
-		Container:    container.ID,
-		InputStream:  stdin,
-		OutputStream: &stdout,
-		ErrorStream:  &stderr,
-		Stream:       true,
-		Stdin:        true,
-		Stdout:       true,
-		Stderr:       true,
-		Success:      sentinel,
-	})
+	// attach goroutine
+	go func() {
+		stdinReader := strings.NewReader(stdin)
+		var stdout, stderr bytes.Buffer
+		err := exe.client.AttachToContainer(docker.AttachToContainerOptions{
+			Container:    exe.container.ID,
+			InputStream:  stdinReader,
+			OutputStream: &stdout,
+			ErrorStream:  &stderr,
+			Stream:       true,
+			Stdin:        true,
+			Stdout:       true,
+			Stderr:       true,
+			Success:      sentinel,
+		})
+
+		if err == nil {
+			exe.result.Stdout = stdout.String()
+			exe.result.Stderr = stderr.String()
+		}
+
+		attachResult <- err
+	}()
+
+	go func() {
+		finalResult <- firstError(<-runResult, <-attachResult)
+	}()
+
+	return finalResult
+}
+
+func writeFile(filename, source string) (string, error) {
+	dir, err := ioutil.TempDir(tempdir, "straitjacket")
 
 	if err == nil {
-		result.Stdout = stdout.String()
-		result.Stderr = stderr.String()
-		err = <-runResult
+		err = os.Chmod(dir, 0777)
+	}
+	if err == nil {
+		err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, filename), []byte(source), 0644)
 	}
 
-	return
+	if err != nil {
+		dir = ""
+	}
+
+	return dir, err
+}
+
+func (exe *execution) cleanup() {
+	if exe.tmpDir != "" {
+		os.RemoveAll(exe.tmpDir)
+	}
+	if exe.container != nil {
+		exe.client.RemoveContainer(docker.RemoveContainerOptions{ID: exe.container.ID, Force: true})
+	}
+}
+
+func firstError(errs ...error) error {
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

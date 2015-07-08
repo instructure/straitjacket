@@ -22,7 +22,7 @@ func LoadConfig(confPath string) (result Engine, err error) {
 
 	for _, config := range configs {
 		var lang *Language
-		lang, err = LoadLanguage(config)
+		lang, err = loadLanguage(config)
 		if err != nil {
 			err = fmt.Errorf("Error loading language '%s': %s", config, err)
 			// fail everything if one language fails to load

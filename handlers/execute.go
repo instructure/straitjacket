@@ -5,14 +5,15 @@ import (
 	"log"
 	"net/http"
 	"straitjacket/engine"
+	"strconv"
 )
 
-type ExecutionResult struct {
-	Stdout     string `json:"stdout"`
-	Stderr     string `json:"stderr"`
-	ExitStatus int    `json:"exit_status"`
-	Time       string `json:"time"`
-	Error      string `json:"error"`
+type executionResult struct {
+	Stdout     string  `json:"stdout"`
+	Stderr     string  `json:"stderr"`
+	ExitStatus int     `json:"exit_status"`
+	Time       float64 `json:"time"`
+	Error      string  `json:"error"`
 }
 
 func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
@@ -28,18 +29,28 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
+	var timeout int64 = 60
+	if timelimit != "" {
+		timeout, err = strconv.ParseInt(timelimit, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	runResult, err := language.Run(&engine.RunOptions{
-		Source: source,
-		Stdin:  stdin,
+		Source:  source,
+		Stdin:   stdin,
+		Timeout: timeout,
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	result := ExecutionResult{
+	result := executionResult{
 		Stdout:     runResult.Stdout,
 		Stderr:     runResult.Stderr,
 		ExitStatus: runResult.ExitCode,
+		Time:       runResult.RunTime.Seconds(),
 	}
 	json, err := json.Marshal(result)
 	if err != nil {

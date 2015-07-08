@@ -8,15 +8,17 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Test struct {
+type test struct {
 	Source, Stdin, Stdout, Stderr string
 	ExitStatus                    int
 }
 
-type Tests struct {
-	Simple, Apparmor, Rlimit Test
+type tests struct {
+	Simple, Apparmor, Rlimit test
 }
 
+// Language represents a supported execution language, read from the config yml
+// files. It provides a Run method for sandboxed code execution.
 type Language struct {
 	Name            string
 	VisibleName     string `yaml:"visible_name"`
@@ -24,7 +26,19 @@ type Language struct {
 	Filename        string
 	DockerImage     string `yaml:"docker_image"`
 	ApparmorProfile string `yaml:"apparmor_profile"`
-	Tests           Tests
+	Tests           tests
+}
+
+// Run executes the given source code in a sandboxed environment, providing the
+// given stdin and returning exit code, stdout and stderr.
+func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
+	exe, err := newExecution(lang)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err = exe.run(opts)
+	return
 }
 
 func (lang *Language) validate() error {
@@ -43,7 +57,7 @@ func (lang *Language) validate() error {
 	return nil
 }
 
-func LoadLanguage(configName string) (lang *Language, err error) {
+func loadLanguage(configName string) (lang *Language, err error) {
 	lang = &Language{}
 	data, err := ioutil.ReadFile(configName)
 	if err == nil {
@@ -55,6 +69,9 @@ func LoadLanguage(configName string) (lang *Language, err error) {
 	return
 }
 
+// RunTests does sanity checks on all supported Languages, including checks that
+// stdin/stdout work as expected, and basic verification that the AppArmor
+// profile is in effect.
 func (lang *Language) RunTests() (err error) {
 	err = lang.runTest("simple", &lang.Tests.Simple)
 	if err == nil {
@@ -66,14 +83,15 @@ func (lang *Language) RunTests() (err error) {
 	return
 }
 
-func (lang *Language) runTest(testName string, test *Test) error {
+func (lang *Language) runTest(testName string, test *test) error {
 	result, err := lang.Run(&RunOptions{
-		Source: test.Source,
-		Stdin:  test.Stdin,
+		Source:  test.Source,
+		Stdin:   test.Stdin,
+		Timeout: 5,
 	})
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failure testing '%s' (%s): %v", lang.Name, testName, err)
 	}
 
 	if result.ExitCode != test.ExitStatus {
