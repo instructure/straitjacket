@@ -1,0 +1,25 @@
+name: lua
+visible_name: Lua 5.2
+version: 5.2
+apparmor_profile: straitjacket/interpreter/default
+filename: source.lua
+docker_image: straitjacket-lua
+
+tests:
+  simple:
+    source: print "hi from lua"
+    stdout: "\\Ahi from lua\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: print(io.open("/etc/hosts", "r"))
+    stdout: "\\Anil\t/etc/hosts: Permission denied\t13\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  rlimit:
+    source: print(os.execute("/bin/ls"))
+    stdout: Resource temporarily unavailable
+    stderr: "\\A\\z"
+    exitstatus: 0
