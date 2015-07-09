@@ -3,14 +3,12 @@
 profile straitjacket/compiler/go {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
-  #include <abstractions/straitjacket-gcc>
-
-  set rlimit nproc <= 32,
-
-  /var/local/straitjacket/tmp/source/?*/?* r,
-  /var/local/straitjacket/tmp/source/?*/?*.o rw,
-  /var/local/straitjacket/tmp/compiler/?** rw,
+  #include <abstractions/straitjacket-compiler>
 
   /usr/share/go/** rix,
   /usr/lib/go/** rix,
+  /usr/src/go/bin/go rix,
+  /usr/src/go/src/** r,
+  /usr/src/go/pkg/** rix,
+  /tmp/** rw,
 }
