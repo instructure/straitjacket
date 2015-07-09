@@ -10,19 +10,23 @@ type Option struct {
 	Version     string `json:"version"`
 }
 
-type RuntimeOptions struct {
-	Options map[string]Option `json:"languages"`
+type AppInfo struct {
+	Options    map[string]Option `json:"languages"`
+	Extensions map[string]string `json:"extensions"`
 }
 
 func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 
-	lang_map := make(map[string]Option)
+	langMap := make(map[string]Option)
 	for _, lang := range ctx.Engine.Languages {
-		lang_map[lang.Name] = Option{VisibleName: lang.VisibleName, Version: lang.Version}
+		langMap[lang.Name] = Option{VisibleName: lang.VisibleName, Version: lang.Version}
 	}
 
-	options := RuntimeOptions{Options: lang_map}
+	options := AppInfo{
+		Options:    langMap,
+		Extensions: extensionsMap,
+	}
 
 	json, err := json.Marshal(options)
 	if err != nil {
@@ -33,4 +37,47 @@ func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+var extensionsMap = map[string]string{
+	"sh":         "bash",
+	"bash":       "bash",
+	"c":          "c",
+	"cs":         "c#",
+	"c#":         "c#",
+	"cpp":        "cpp",
+	"cxx":        "cpp",
+	"c++":        "cpp",
+	"d":          "d",
+	"f90":        "fortran",
+	"fortran":    "fortran",
+	"go":         "go",
+	"guile":      "guile",
+	"hs":         "haskell",
+	"haskell":    "haskell",
+	"java":       "java",
+	"js":         "javascript",
+	"sjs":        "javascript",
+	"ssjs":       "javascript",
+	"javascript": "javascript",
+	"lua":        "lua",
+	"ml":         "ocaml",
+	"ocaml":      "ocaml",
+	"pl":         "perl",
+	"plx":        "perl",
+	"perl":       "perl",
+	"php":        "php",
+	"php5":       "php",
+	"py":         "python",
+	"pyw":        "python",
+	"xpy":        "python",
+	"python":     "python",
+	"rb":         "ruby",
+	"rbw":        "ruby",
+	"rbx":        "ruby",
+	"ruby":       "ruby",
+	"scala":      "scala",
+	"rkt":        "scheme",
+	"scm":        "scheme",
+	"scheme":     "scheme",
 }
