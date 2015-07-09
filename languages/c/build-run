@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+if [ "$1" == "--build" ]; then
+  gcc -o /src/main $2
+else
+  /src/main
+fi

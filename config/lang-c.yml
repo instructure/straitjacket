@@ -1,0 +1,56 @@
+name: c
+visible_name: C (GCC)
+version: "4.9-v2.066"
+compiler_profile: straitjacket/compiler/c
+apparmor_profile: straitjacket/compiled/c
+filename: source.c
+docker_image: straitjacket-c
+
+tests:
+  simple:
+    source: |
+      #include <stdio.h>
+      int main(int argc, char** argv) {
+        printf("c compilation succeeded\n");
+        return 0;
+      }
+    stdout: "\\Ac compilation succeeded\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      #include <stdio.h>
+      #include <errno.h>
+      int main(int argc, char** argv) {
+        if(fopen("/etc/hosts", "r")) {
+          printf("opened\n");
+          return 0;
+        } else {
+          printf("not opened: %d\n", errno);
+          return 1;
+        }
+      }
+    stdout: "\\Anot opened: 13\\n\\z"
+    stderr:
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      #include <stdio.h>
+       int main(int argc, char** argv) {
+         printf("forked: %d\n", fork());
+         return 3;
+       }
+    stdout: "\\Aforked: -1\\n\\z"
+    stderr:
+    exitstatus: 3
+  includesafe:
+    source: |
+      #include "/etc/hosts"
+      int main(int argc, char** argv) {
+        return 0;
+      }
+    stdout:
+    stderr: "\\Afatal error: /etc/hosts: Permission denied\\n\\z"
+    exitstatus: 1
