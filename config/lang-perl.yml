@@ -1,0 +1,35 @@
+name: perl
+visible_name: Perl 5.14
+version: "5.14"
+apparmor_profile: straitjacket/interpreter/default
+filename: source.pl
+docker_image: straitjacket-perl
+
+tests:
+  simple:
+    source: |
+      $message = 'hello from perl';
+      print "$message";
+    stdout: "\\Ahello from perl\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      open FILE, "/etc/hosts" or die $!;
+      while (<FILE>) {
+        print $_;
+      }
+    stdout: "\\A\\z"
+    stderr: "\\APermission denied at"
+    exitstatus: 13
+
+  rlimit:
+    source: |
+      my $pid = fork();
+      if(defined $pid) { print "defined"; }
+      else { print "undefined"; }
+      print $pid;
+    stdout: "\\Aundefined\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
