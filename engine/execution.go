@@ -75,6 +75,7 @@ func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
 
 	if timeout {
 		result.ErrorString = "runtime_timelimit"
+		result.ExitCode = -9
 	} else if result.ExitCode != 0 {
 		result.ErrorString = "runtime_error"
 	}

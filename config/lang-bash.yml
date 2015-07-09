@@ -27,4 +27,4 @@ tests:
       wait
     stdout: "\\A\\z"
     stderr: "fork: retry: No child processes"
-    exitstatus: 137
+    exitstatus: 254
