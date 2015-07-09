@@ -4,6 +4,7 @@ profile straitjacket/interpreter/guile {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
 
-  /var/local/straitjacket/tmp/source/?*/?* r,
   /usr/share/guile/** r,
+  # the guile interpreter won't start up without being able to read its own stack information from this file
+  /proc/@{pid}/stat r,
 }
