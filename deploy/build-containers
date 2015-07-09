@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+for language in languages/*; do
+  image_name=straitjacket-$(basename $language)
+  echo "Building image $image_name"
+  docker build -t $image_name $language
+done

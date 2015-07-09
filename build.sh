@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-deploy/install-profiles
 deploy/build-containers
+./run-dev.sh --test --disable-apparmor

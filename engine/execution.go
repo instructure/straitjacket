@@ -94,10 +94,14 @@ func (exe *execution) attachAndRun(stdin string) chan error {
 	// run goroutine
 	go func() {
 		_ = <-sentinel
+		securityOpt := []string{}
+		if exe.apparmorProfile != "" {
+			securityOpt = append(securityOpt, fmt.Sprintf("apparmor:%s", exe.apparmorProfile))
+		}
 		// when we get the sentinel, we know we've attached in the other goroutine
 		err := exe.client.StartContainer(exe.container.ID, &docker.HostConfig{
 			Binds:       []string{fmt.Sprintf("%s:/src", exe.srcDir)},
-			SecurityOpt: []string{fmt.Sprintf("apparmor:%s", exe.apparmorProfile)},
+			SecurityOpt: securityOpt,
 		})
 		sentinel <- struct{}{}
 

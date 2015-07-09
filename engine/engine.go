@@ -9,7 +9,8 @@ type Engine struct {
 	Languages []*Language
 }
 
-func LoadConfig(confPath string) (result Engine, err error) {
+func New(confPath string, disableApparmor bool) (result *Engine, err error) {
+	result = &Engine{}
 	configs, err := filepath.Glob(confPath + "/lang-*.yml")
 	if err != nil {
 		return
@@ -27,6 +28,9 @@ func LoadConfig(confPath string) (result Engine, err error) {
 			err = fmt.Errorf("Error loading language '%s': %s", config, err)
 			// fail everything if one language fails to load
 			return
+		}
+		if disableApparmor {
+			lang.disableAppArmor()
 		}
 		result.Languages = append(result.Languages, lang)
 	}

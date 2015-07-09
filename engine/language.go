@@ -27,6 +27,7 @@ type Language struct {
 	Version         string
 	Filename        string
 	DockerImage     string `yaml:"docker_image"`
+	compileStep     bool
 	ApparmorProfile string `yaml:"apparmor_profile"`
 	CompilerProfile string `yaml:"compiler_profile"`
 	Tests           tests
@@ -46,7 +47,7 @@ type RunOptions struct {
 
 // Run executes the given source code in a sandboxed environment, providing the
 // given stdin and returning exit code, stdout and stderr.
-func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
+func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 	var exe *execution
 	dir, err := writeFile(lang.Filename, opts.Source)
 	if err != nil {
@@ -56,14 +57,14 @@ func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
 
 	filePath := fmt.Sprintf("/src/%s", lang.Filename)
 
-	if lang.CompilerProfile != "" {
+	if lang.compileStep {
 		exe, err = newExecution("compilation", []string{"--build", filePath}, dir, lang.DockerImage, lang.CompilerProfile)
 		if err != nil {
 			return nil, err
 		}
-		result, err = exe.run(opts)
+		result, err := exe.run(opts)
 		if err != nil || result.ExitCode != 0 {
-			return
+			return nil, err
 		}
 	}
 
@@ -71,9 +72,9 @@ func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
 	if err != nil {
 		return nil, err
 	}
-	result, err = exe.run(opts)
+	result, err := exe.run(opts)
 
-	return
+	return result, err
 }
 
 func writeFile(filename, source string) (string, error) {
@@ -115,6 +116,9 @@ func loadLanguage(configName string) (lang *Language, err error) {
 	if err == nil {
 		err = yaml.Unmarshal(data, lang)
 	}
+	if lang.CompilerProfile != "" {
+		lang.compileStep = true
+	}
 	if err == nil {
 		err = lang.validate()
 	}
@@ -126,6 +130,11 @@ func loadLanguage(configName string) (lang *Language, err error) {
 // profile is in effect.
 func (lang *Language) RunTests() (err error) {
 	err = lang.runTest("simple", &lang.Tests.Simple)
+	if lang.ApparmorProfile == "" {
+		// skip the apparmor tests when it's been disabled
+		return
+	}
+
 	if err == nil {
 		err = lang.runTest("apparmor", &lang.Tests.Apparmor)
 	}
@@ -169,4 +178,9 @@ func (lang *Language) runTest(testName string, test *test) error {
 	}
 
 	return nil
+}
+
+func (lang *Language) disableAppArmor() {
+	lang.ApparmorProfile = ""
+	lang.CompilerProfile = ""
 }

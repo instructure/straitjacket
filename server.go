@@ -8,13 +8,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func newServerStack() *negroni.Negroni {
-	theEngine, err := engine.LoadConfig("config")
-	if err != nil {
-		panic(err)
-	}
+func newServerStack(engine *engine.Engine) *negroni.Negroni {
 	context := &handlers.Context{
-		Engine: theEngine,
+		Engine: *engine,
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -27,7 +23,7 @@ func newServerStack() *negroni.Negroni {
 	return server
 }
 
-func startServer(addr string) {
-	server := newServerStack()
+func startServer(engine *engine.Engine, addr string) {
+	server := newServerStack(engine)
 	server.Run(addr)
 }
