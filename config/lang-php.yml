@@ -1,0 +1,32 @@
+name: php
+visible_name: PHP 5
+version: "5.4"
+apparmor_profile: straitjacket/interpreter/default
+filename: source.php
+docker_image: straitjacket-php
+
+tests:
+  simple:
+    source: |
+      <? echo 'hi from php' ?>
+    stdout: "\\Ahi from php\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      <?
+        $fh = fopen("/etc/hosts", 'r');
+        echo fread($fh, filesize("/etc/hosts"));
+        fclose($fh)
+      ?>
+    stdout: "\\A\nWarning: fopen\\(/etc/hosts\\): failed to open stream: Permission denied in"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      <? echo pcntl_fork(); ?>
+    stdout: "\\A\nWarning: pcntl_fork\\(\\): Error 11"
+    stderr: "\\A\\z"
+    exitstatus: 0
