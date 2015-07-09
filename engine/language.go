@@ -85,9 +85,8 @@ func (lang *Language) RunTests() (err error) {
 
 func (lang *Language) runTest(testName string, test *test) error {
 	result, err := lang.Run(&RunOptions{
-		Source:  test.Source,
-		Stdin:   test.Stdin,
-		Timeout: 5,
+		Source: test.Source,
+		Stdin:  test.Stdin,
 	})
 
 	if err != nil {
