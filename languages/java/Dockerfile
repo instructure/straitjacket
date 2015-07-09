@@ -3,8 +3,7 @@ FROM java:7
 ADD build-run /build-run
 RUN chmod +x /build-run
 
-RUN mkdir /build
-RUN useradd docker && chown docker /build
+RUN useradd docker
 USER docker
 
 VOLUME /src

@@ -3,7 +3,9 @@ package engine
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"regexp"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -26,19 +28,69 @@ type Language struct {
 	Filename        string
 	DockerImage     string `yaml:"docker_image"`
 	ApparmorProfile string `yaml:"apparmor_profile"`
+	CompilerProfile string `yaml:"compiler_profile"`
 	Tests           tests
+}
+
+type RunResult struct {
+	ExitCode       int
+	Stdout, Stderr string
+	RunTime        time.Duration
+	ErrorString    string
+}
+
+type RunOptions struct {
+	Source, Stdin string
+	Timeout       int64
 }
 
 // Run executes the given source code in a sandboxed environment, providing the
 // given stdin and returning exit code, stdout and stderr.
 func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
-	exe, err := newExecution(lang)
+	var exe *execution
+	dir, err := writeFile(lang.Filename, opts.Source)
 	if err != nil {
 		return nil, err
 	}
+	defer os.RemoveAll(dir)
 
+	filePath := fmt.Sprintf("/src/%s", lang.Filename)
+
+	if lang.CompilerProfile != "" {
+		exe, err = newExecution("compilation", []string{"--build", filePath}, dir, lang.DockerImage, lang.CompilerProfile)
+		if err != nil {
+			return nil, err
+		}
+		result, err = exe.run(opts)
+		if err != nil || result.ExitCode != 0 {
+			return
+		}
+	}
+
+	exe, err = newExecution("runtime", []string{filePath}, dir, lang.DockerImage, lang.ApparmorProfile)
+	if err != nil {
+		return nil, err
+	}
 	result, err = exe.run(opts)
+
 	return
+}
+
+func writeFile(filename, source string) (string, error) {
+	dir, err := ioutil.TempDir(tempdir, "straitjacket")
+
+	if err == nil {
+		err = os.Chmod(dir, 0777)
+	}
+	if err == nil {
+		err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, filename), []byte(source), 0644)
+	}
+
+	if err != nil {
+		dir = ""
+	}
+
+	return dir, err
 }
 
 func (lang *Language) validate() error {
@@ -94,8 +146,10 @@ func (lang *Language) runTest(testName string, test *test) error {
 		return fmt.Errorf("Failure testing '%s' (%s): %v", lang.Name, testName, err)
 	}
 
+	errorString := fmt.Sprintf("for '%s' (%s).\nexit code: %d\nstdout: %v\nstderr: %v\nerror: %s\n", lang.Name, testName, result.ExitCode, result.Stdout, result.Stderr, result.ErrorString)
+
 	if result.ExitCode != test.ExitStatus {
-		return fmt.Errorf("Failure testing '%s' (%s), expected exit status: %d got: %d", lang.Name, testName, test.ExitStatus, result.ExitCode)
+		return fmt.Errorf("Incorrect exit code %s", errorString)
 	}
 
 	match, err := regexp.MatchString(test.Stderr, result.Stderr)
@@ -103,7 +157,7 @@ func (lang *Language) runTest(testName string, test *test) error {
 		return err
 	}
 	if match == false {
-		return fmt.Errorf("Failure testing '%s' (%s), got stderr: %o", lang.Name, testName, result.Stderr)
+		return fmt.Errorf("Incorrect stderr %s", errorString)
 	}
 
 	match, err = regexp.MatchString(test.Stdout, result.Stdout)
@@ -111,7 +165,7 @@ func (lang *Language) runTest(testName string, test *test) error {
 		return err
 	}
 	if match == false {
-		return fmt.Errorf("Failure testing '%s' (%s), got stdout: %o", lang.Name, testName, result.Stdout)
+		return fmt.Errorf("Incorrect stdout %s", errorString)
 	}
 
 	return nil

@@ -2,5 +2,8 @@
 
 set -e
 
-mcs -out:/build/main.exe $1
-mono /build/main.exe
+if [ "$1" == "--build" ]; then
+  mcs -out:/src/main.exe $2
+else
+  mono /src/main.exe
+fi

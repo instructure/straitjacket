@@ -1,0 +1,10 @@
+# compilers write new executable files to /src
+/src/** rwm,
+
+# compilers fork a lot and can use a lot of resources
+set rlimit fsize <= 32M,
+set rlimit nproc <= 500,
+set rlimit as <= 1536M,
+
+# 1 greater than max
+set rlimit nofile <= 501,

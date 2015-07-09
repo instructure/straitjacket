@@ -34,8 +34,7 @@
 #  set rlimit nice <= 5,
 
 /src/ r,
-/src/** r,
 /build-run r,
-/build/ r,
-/build/** rwm,
-/build/** rix,
+/src/** rm,
+/src/** rix,
+

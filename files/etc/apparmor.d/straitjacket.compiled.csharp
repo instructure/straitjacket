@@ -3,9 +3,8 @@
 profile straitjacket/compiled/csharp {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
-  #include <abstractions/straitjacket-mono>
+
+  set rlimit nproc <= 40,
 
   /usr/bin/*mono* rix,
-  /usr/bin/mcs rix,
-  /usr/lib/mono/** r,
 }

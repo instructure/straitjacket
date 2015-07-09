@@ -1,6 +1,7 @@
 name: c#
 visible_name: C# (mono)
 version: "4.0"
+compiler_profile: straitjacket/compiler/csharp
 apparmor_profile: straitjacket/compiled/csharp
 filename: source.cs
 docker_image: straitjacket-csharp

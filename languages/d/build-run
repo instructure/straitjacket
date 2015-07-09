@@ -2,5 +2,8 @@
 
 set -e
 
-gdc -o /build/app $1
-/build/app
+if [ "$1" == "--build" ]; then
+  gdc -o /src/app $2
+else
+  /src/app
+fi

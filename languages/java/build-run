@@ -2,5 +2,8 @@
 
 set -e
 
-javac -d /build Main.java
-java -classpath /build Main
+if [ "$1" == "--build" ]; then
+  javac -d /src $2
+else
+  java -classpath /src Main
+fi

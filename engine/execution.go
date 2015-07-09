@@ -3,8 +3,6 @@ package engine
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
 	"time"
 
@@ -16,33 +14,28 @@ var (
 	tempdir  = "/tmp"
 )
 
-type RunOptions struct {
-	Source, Stdin string
-	Timeout       int64
-}
-
-type RunResult struct {
-	ExitCode       int
-	Stdout, Stderr string
-	RunTime        time.Duration
-	ErrorString    string
-}
-
 type execution struct {
-	lang      *Language
-	tmpDir    string
-	client    *docker.Client
-	container *docker.Container
-	sentinel  chan struct{}
-	result    *RunResult
+	step            string
+	command         []string
+	srcDir          string
+	dockerImage     string
+	apparmorProfile string
+	client          *docker.Client
+	container       *docker.Container
+	sentinel        chan struct{}
+	result          *RunResult
 }
 
 // Initialize a new exeuction object for use.
-func newExecution(lang *Language) (exe *execution, err error) {
+func newExecution(step string, command []string, srcDir, dockerImage, apparmorProfile string) (exe *execution, err error) {
 	exe = &execution{
-		lang:     lang,
-		sentinel: make(chan struct{}),
-		result:   &RunResult{},
+		step:            step,
+		command:         command,
+		srcDir:          srcDir,
+		dockerImage:     dockerImage,
+		apparmorProfile: apparmorProfile,
+		sentinel:        make(chan struct{}),
+		result:          &RunResult{},
 	}
 
 	exe.client, err = docker.NewClient(endpoint)
@@ -55,11 +48,7 @@ func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
 	timeout := false
 	defer exe.cleanup()
 
-	exe.tmpDir, err = writeFile(exe.lang.Filename, opts.Source)
-
-	if err == nil {
-		err = exe.createContainer()
-	}
+	err = exe.createContainer()
 
 	if err == nil {
 		startTime := time.Now()
@@ -74,10 +63,10 @@ func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
 	}
 
 	if timeout {
-		result.ErrorString = "runtime_timelimit"
+		result.ErrorString = fmt.Sprintf("%s_timelimit", exe.step)
 		result.ExitCode = -9
 	} else if result.ExitCode != 0 {
-		result.ErrorString = "runtime_error"
+		result.ErrorString = fmt.Sprintf("%s_error", exe.step)
 	}
 
 	return
@@ -86,8 +75,8 @@ func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
 func (exe *execution) createContainer() (err error) {
 	exe.container, err = exe.client.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
-			Image:     exe.lang.DockerImage,
-			Cmd:       []string{fmt.Sprintf("/src/%s", exe.lang.Filename)},
+			Image:     exe.dockerImage,
+			Cmd:       exe.command,
 			OpenStdin: true,
 			StdinOnce: true,
 		},
@@ -107,8 +96,8 @@ func (exe *execution) attachAndRun(stdin string) chan error {
 		_ = <-sentinel
 		// when we get the sentinel, we know we've attached in the other goroutine
 		err := exe.client.StartContainer(exe.container.ID, &docker.HostConfig{
-			Binds:       []string{fmt.Sprintf("%s:/src:ro", exe.tmpDir)},
-			SecurityOpt: []string{fmt.Sprintf("apparmor:%s", exe.lang.ApparmorProfile)},
+			Binds:       []string{fmt.Sprintf("%s:/src", exe.srcDir)},
+			SecurityOpt: []string{fmt.Sprintf("apparmor:%s", exe.apparmorProfile)},
 		})
 		sentinel <- struct{}{}
 
@@ -149,27 +138,7 @@ func (exe *execution) attachAndRun(stdin string) chan error {
 	return finalResult
 }
 
-func writeFile(filename, source string) (string, error) {
-	dir, err := ioutil.TempDir(tempdir, "straitjacket")
-
-	if err == nil {
-		err = os.Chmod(dir, 0777)
-	}
-	if err == nil {
-		err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, filename), []byte(source), 0644)
-	}
-
-	if err != nil {
-		dir = ""
-	}
-
-	return dir, err
-}
-
 func (exe *execution) cleanup() {
-	if exe.tmpDir != "" {
-		os.RemoveAll(exe.tmpDir)
-	}
 	if exe.container != nil {
 		exe.client.RemoveContainer(docker.RemoveContainerOptions{ID: exe.container.ID, Force: true})
 	}

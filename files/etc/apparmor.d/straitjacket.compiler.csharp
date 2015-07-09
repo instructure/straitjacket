@@ -3,8 +3,9 @@
 profile straitjacket/compiler/csharp {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
-  #include <abstractions/straitjacket-mono>
+  #include <abstractions/straitjacket-compiler>
 
-  /var/local/straitjacket/tmp/source/?*/?* rw,
-
+  /usr/bin/*mono* rix,
+  /usr/bin/mcs rix,
+  /usr/lib/mono/** r,
 }
