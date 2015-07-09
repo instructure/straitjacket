@@ -7,29 +7,34 @@ import (
 )
 
 func main() {
-	var testLanguages = flag.Bool("test", false, "Run the language sanity tests")
+	var flagRunLanguageTests = flag.Bool("test", false, "Run the language sanity tests")
+	var testLanguage = flag.String("lang", "", "Run the tests for one specific language")
 	flag.Parse()
 
-	if *testLanguages {
-		runLanguageTests()
+	if *flagRunLanguageTests {
+		runLanguageTests(*testLanguage)
 	} else {
 		startServer(":8081")
 	}
 }
 
-func runLanguageTests() {
+func runLanguageTests(langToRun string) {
 	theEngine, err := engine.LoadConfig("config")
 	if err != nil {
 		panic(err)
 	}
 
 	for _, lang := range theEngine.Languages {
-		fmt.Printf("Testing %s\n", lang.VisibleName)
-		err := lang.RunTests()
-		if err != nil {
-			panic(err)
+		if langToRun == "" || langToRun == lang.Name {
+			fmt.Printf("Testing %s\n", lang.VisibleName)
+			err := lang.RunTests()
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 
-	fmt.Printf("All languages A-OK\n")
+	if langToRun == "" {
+		fmt.Printf("All languages A-OK\n")
+	}
 }
