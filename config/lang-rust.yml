@@ -1,0 +1,41 @@
+name: rust
+visible_name: Rust 1.1.0
+version: "1.1.0"
+compiler_profile: straitjacket/compiler/rust
+apparmor_profile: straitjacket/compiled/rust
+filename: main.rs
+docker_image: straitjacket-rust
+
+tests:
+  simple:
+    source: |
+      fn main() {
+        println!("Hello, world!");
+      }
+    stdout: "\\AHello, world!\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      use std::iter::repeat;
+      fn main() {
+          const SIZE: usize = 1073741824;
+          let v: Vec<_> = repeat(10.0).take(SIZE).collect();
+      }
+    stdout:
+    stderr: Illegal instruction
+    exitstatus: 132
+
+  apparmor:
+    source: |
+      use std::fs::File;
+      fn main() {
+        let file = match File::open("/etc/passwd") {
+          Ok(file) => println!("Read it!"),
+          Err(..)  => panic!("Access denied"),
+        };
+      }
+    stdout: "\\A\\z"
+    stderr: Access denied
+    exitstatus: 101

@@ -64,7 +64,7 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 		}
 		result, err := exe.run(opts)
 		if err != nil || result.ExitCode != 0 {
-			return nil, err
+			return result, err
 		}
 	}
 

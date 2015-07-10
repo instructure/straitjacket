@@ -1,7 +1,8 @@
 #include <tunables/global>
 
-profile straitjacket/compiler/default {
+profile straitjacket/compiled/rust {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
-  #include <abstractions/straitjacket-compiler>
+
+  set rlimit nproc <= 32,
 }

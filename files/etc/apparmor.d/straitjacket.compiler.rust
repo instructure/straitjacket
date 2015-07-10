@@ -1,0 +1,13 @@
+#include <tunables/global>
+
+profile straitjacket/compiler/rust {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-compiler>
+  #include <abstractions/straitjacket-gcc>
+
+  /usr/local/bin/rustc rix,
+  /usr/local/lib/*.so rm,
+  /usr/local/lib/rustlib/** rm,
+  /tmp/** rw,
+}

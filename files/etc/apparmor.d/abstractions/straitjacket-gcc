@@ -5,6 +5,9 @@
   set rlimit nofile <= 501,
 
   /usr/bin/as rix,
+  /usr/bin/cc rix,
+  /usr/bin/gcc* rix,
+  /etc/alternatives/cc rix,
   /usr/bin/ld.bfd rix,
   /usr/lib/**/cc1 rix,
   /usr/lib/**/cc1plus rix,
