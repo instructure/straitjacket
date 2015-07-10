@@ -1,0 +1,35 @@
+name: haskell
+visible_name: Haskell
+version: "7.10"
+compiler_profile: straitjacket/compiler/ghc
+apparmor_profile: straitjacket/compiled/ghc
+filename: source.hs
+docker_image: straitjacket-haskell
+
+tests:
+  simple:
+    source: |
+      main = putStrLn "hello from haskell"
+    stdout: "\\Ahello from haskell\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      main = do
+          s <- readFile "/etc/hosts"
+          putStrLn s
+    stdout:
+    stderr: "/etc/hosts: openFile: permission denied \\(Permission denied\\)"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      import Foreign
+      main :: IO ()
+      main = do
+        a0 <- mallocBytes (1073741824 * 4)
+        free a0
+    stdout: "\\A\\z"
+    stderr: "\\Amain: malloc: resource exhausted \\(out of memory\\)\\n\\z"
+    exitstatus: 1
