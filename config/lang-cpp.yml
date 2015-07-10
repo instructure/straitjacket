@@ -1,0 +1,56 @@
+name: cpp
+visible_name: C++ (G++)
+version: "11"
+compiler_profile: straitjacket/compiler/cpp
+apparmor_profile: straitjacket/compiled/c
+filename: source.cpp
+docker_image: straitjacket-cpp
+
+tests:
+  simple:
+    source: |
+      #include <iostream>
+      int main(int argc, char** argv) {
+        std::cout << "cpp compilation succeeded" << std::endl;
+        return 0;
+      }
+    stdout: "\\Acpp compilation succeeded\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      #include <iostream>
+      #include <stdio.h>
+      #include <errno.h>
+      int main(int argc, char** argv) {
+        if(fopen("/etc/hosts", "r")) {
+          std::cout << "opened" << std::endl;
+        } else {
+          std::cout << "not opened: " << errno << std::endl;
+        }
+        return 1;
+      }
+    stdout: "\\Anot opened: 13\\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      #include <iostream>
+      #include <new>
+      using namespace std;
+
+      int main() {
+        try {
+          int* lots_of_ints = new int[1073741824];
+        } catch (std::bad_alloc& ba) {
+          std::cerr << "bad_alloc caught" << '\n';
+          return 1;
+        }
+        return 0;
+      }
+    stdout: "\\A\\z"
+    stderr: "\\Abad_alloc caught\\n\\z"
+    exitstatus: 1
+
