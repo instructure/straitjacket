@@ -4,9 +4,9 @@ profile straitjacket/compiler/scala {
   #include <abstractions/base>
   #include <abstractions/straitjacket-base>
   #include <abstractions/straitjacket-jvm>
+  #include <abstractions/straitjacket-compiler>
 
-  /usr/bin/scalac rix,
+  /bin/uname rix,
   /usr/lib/jvm/*/bin/java rix,
-  /var/local/straitjacket/tmp/source/?*/?* rw,
-
+  /usr/share/scala/lib/** r,
 }

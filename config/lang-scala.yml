@@ -1,0 +1,60 @@
+name: scala
+visible_name: Scala 2.11
+version: "2.11.6"
+compiler_profile: straitjacket/compiler/scala
+apparmor_profile: straitjacket/compiled/scala
+filename: Main.scala
+docker_image: straitjacket-scala
+
+tests:
+  simple:
+    source: |
+      object Main {
+        def main(args: Array[String]) {
+          var lines: List[String] = Nil
+
+          val input = io.Source.stdin
+          for(line <- input.getLines) {
+            lines = List(line).:::(lines)
+          }
+
+          for(line <- lines) {
+            println(process(line))
+          }
+        }
+        
+        def process(line: String):String = {
+          return((line.toInt * 2).toString)
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      object Main {
+        def main(args: Array[String]) {
+          val data = new Array[String](1073741824)
+          data
+        }
+      }
+    stdout: "\\A\\z"
+    stderr: "java.lang.OutOfMemoryError: Java heap space\\n"
+    exitstatus: 1
+
+  apparmor:
+    source: |
+      import scala.io._
+      object Main {
+        def main(args: Array[String]) {
+          val s = Source.fromFile("/etc/hosts")
+          s.getLines.foreach( (line) => {
+            println(line.trim)
+          })
+        }
+      }
+    stdout: "\\A\\z"
+    stderr: "java.io.FileNotFoundException: /etc/hosts \\(Permission denied\\)"
+    exitstatus: 1

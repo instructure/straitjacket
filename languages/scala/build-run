@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+# I got these commands by setting SCALA_RUNNER_DEBUG, and then running
+# scalac and scala to see what java commands they end up running. This way we don't
+# have to whitelist all the dozens of programs that the scalac/scala wrapper
+# scripts need.
+
+if [ "$1" == "--build" ]; then
+  java -Xmx256M -Xms32M -Xbootclasspath/a:/usr/share/scala/lib/akka-actor_2.11-2.3.4.jar:/usr/share/scala/lib/config-1.2.1.jar:/usr/share/scala/lib/jline-2.12.1.jar:/usr/share/scala/lib/scala-actors-2.11.0.jar:/usr/share/scala/lib/scala-actors-migration_2.11-1.1.0.jar:/usr/share/scala/lib/scala-compiler.jar:/usr/share/scala/lib/scala-continuations-library_2.11-1.0.2.jar:/usr/share/scala/lib/scala-continuations-plugin_2.11.5-1.0.2.jar:/usr/share/scala/lib/scala-library.jar:/usr/share/scala/lib/scala-parser-combinators_2.11-1.0.3.jar:/usr/share/scala/lib/scala-reflect.jar:/usr/share/scala/lib/scala-swing_2.11-1.0.1.jar:/usr/share/scala/lib/scala-xml_2.11-1.0.3.jar:/usr/share/scala/lib/scalap-2.11.6.jar -classpath "" -Dscala.home=/usr/share/scala -Dscala.usejavacp=true -Denv.emacs= scala.tools.nsc.Main -d /src /src/Main.scala
+else
+  java -Xmx256M -Xms32M -Xbootclasspath/a:/usr/share/scala/lib/akka-actor_2.11-2.3.4.jar:/usr/share/scala/lib/config-1.2.1.jar:/usr/share/scala/lib/jline-2.12.1.jar:/usr/share/scala/lib/scala-actors-2.11.0.jar:/usr/share/scala/lib/scala-actors-migration_2.11-1.1.0.jar:/usr/share/scala/lib/scala-compiler.jar:/usr/share/scala/lib/scala-continuations-library_2.11-1.0.2.jar:/usr/share/scala/lib/scala-continuations-plugin_2.11.5-1.0.2.jar:/usr/share/scala/lib/scala-library.jar:/usr/share/scala/lib/scala-parser-combinators_2.11-1.0.3.jar:/usr/share/scala/lib/scala-reflect.jar:/usr/share/scala/lib/scala-swing_2.11-1.0.1.jar:/usr/share/scala/lib/scala-xml_2.11-1.0.3.jar:/usr/share/scala/lib/scalap-2.11.6.jar -classpath "" -Dscala.home=/usr/share/scala -Dscala.usejavacp=true -Denv.emacs= scala.tools.nsc.MainGenericRunner -classpath /src Main
+fi
