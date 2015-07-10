@@ -1,6 +1,6 @@
 name: c
 visible_name: C (GCC)
-version: "4.9-v2.066"
+version: "C11"
 compiler_profile: straitjacket/compiler/c
 apparmor_profile: straitjacket/compiled/c
 filename: source.c
@@ -38,19 +38,14 @@ tests:
   rlimit:
     source: |
       #include <stdio.h>
-       int main(int argc, char** argv) {
-         printf("forked: %d\n", fork());
-         return 3;
-       }
-    stdout: "\\Aforked: -1\\n\\z"
-    stderr:
-    exitstatus: 3
-  includesafe:
-    source: |
-      #include "/etc/hosts"
       int main(int argc, char** argv) {
+        int TOO_MANY = 1073741824;
+        int *lots_of_ints = malloc(TOO_MANY * sizeof(int));
+        if (NULL == lots_of_ints) {
+          return 1;
+        }
         return 0;
       }
-    stdout:
-    stderr: "\\Afatal error: /etc/hosts: Permission denied\\n\\z"
+    stdout: "\\A\\z"
+    stderr: "\\A\\z"
     exitstatus: 1

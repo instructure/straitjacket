@@ -3,7 +3,7 @@
 set -e
 
 if [ "$1" == "--build" ]; then
-  gcc -o /src/main $2
+  gcc -std=c11 -o /src/main $2
 else
   /src/main
 fi
