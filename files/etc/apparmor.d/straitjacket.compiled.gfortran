@@ -1,0 +1,8 @@
+#include <tunables/global>
+
+profile straitjacket/compiled/gfortran {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+
+  set rlimit nproc <= 32,
+}
