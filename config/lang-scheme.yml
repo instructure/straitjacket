@@ -1,0 +1,32 @@
+name: scheme
+visible_name: Scheme
+version: "R5RS"
+apparmor_profile: straitjacket/interpreter/racket
+filename: source.scm
+docker_image: straitjacket-scheme
+
+tests:
+  simple:
+    source: |
+      (display "hi from scheme")
+        (newline)
+    stdout: "\\Ahi from scheme\\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      (with-input-from-file "/etc/passwd" (lambda ()
+        (define loop (lambda (token)
+          (if (not (eof-object? token))
+              (begin (display token) (newline) (loop (read))))))
+        (loop (read))))
+    stdout: "\\A\\z"
+    stderr: "\\Awith-input-from-file: cannot open input file: \"/etc/passwd\" \\(Permission denied; errno=13\\)\\n"
+    exitstatus: 1
+
+  rlimit:
+    source: (begin (display (make-string 1073741824)) (newline))
+    stdout: "\\A\\z"
+    stderr: out of memory
+    exitstatus: 139
