@@ -1,0 +1,31 @@
+name: python2
+visible_name: Python 2
+version: "2.7.10"
+apparmor_profile: straitjacket/interpreter/python
+filename: source.py
+docker_image: straitjacket-python2
+
+tests:
+  simple:
+    source: |
+      import sys
+      print("hi from %s" % sys.stdin.read())
+    stdin: python
+    stdout: "hi from python\n"
+    stderr:
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      print(open("/etc/hosts", 'r').read())
+    stdout:
+    stderr: "Permission denied: '/etc/hosts'"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      import os
+      print(os.fork())
+    stdout:
+    stderr: 'OSError: \[Errno 11\] Resource temporarily unavailable'
+    exitstatus: 1
