@@ -1,6 +1,6 @@
 name: bash
-visible_name: Bash 4.2
-version: "4.2"
+visible_name: Bash 4.3
+version: "4.3"
 apparmor_profile: straitjacket/interpreter/default
 filename: source.sh
 docker_image: straitjacket-bash

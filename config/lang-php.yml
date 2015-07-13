@@ -1,6 +1,6 @@
 name: php
 visible_name: PHP 5
-version: "5.4"
+version: "5.6.9"
 apparmor_profile: straitjacket/interpreter/default
 filename: source.php
 docker_image: straitjacket-php
@@ -8,14 +8,14 @@ docker_image: straitjacket-php
 tests:
   simple:
     source: |
-      <? echo 'hi from php' ?>
+      <?php echo 'hi from php' ?>
     stdout: "\\Ahi from php\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
   apparmor:
     source: |
-      <?
+      <?php
         $fh = fopen("/etc/hosts", 'r');
         echo fread($fh, filesize("/etc/hosts"));
         fclose($fh)
@@ -26,7 +26,7 @@ tests:
 
   rlimit:
     source: |
-      <? echo pcntl_fork(); ?>
+      <?php echo pcntl_fork(); ?>
     stdout: "\\A\nWarning: pcntl_fork\\(\\): Error 11"
     stderr: "\\A\\z"
     exitstatus: 0

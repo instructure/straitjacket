@@ -1,4 +1,4 @@
-FROM buildpack-deps:wheezy
+FROM buildpack-deps:jessie
 
 ADD build-run /build-run
 RUN chmod +x /build-run

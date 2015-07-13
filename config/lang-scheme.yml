@@ -22,7 +22,7 @@ tests:
               (begin (display token) (newline) (loop (read))))))
         (loop (read))))
     stdout: "\\A\\z"
-    stderr: "\\Awith-input-from-file: cannot open input file: \"/etc/passwd\" \\(Permission denied; errno=13\\)\\n"
+    stderr: "\\Awith-input-from-file: cannot open input file\\n  path: /etc/passwd\\n  system error: Permission denied; errno=13\\n"
     exitstatus: 1
 
   rlimit:

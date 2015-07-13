@@ -1,6 +1,6 @@
 name: perl
-visible_name: Perl 5.14
-version: "5.14"
+visible_name: Perl 5.20
+version: "5.20.2"
 apparmor_profile: straitjacket/interpreter/default
 filename: source.pl
 docker_image: straitjacket-perl

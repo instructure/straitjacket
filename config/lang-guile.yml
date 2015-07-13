@@ -1,6 +1,6 @@
 name: guile
 visible_name: Guile 2.0
-version: "2.0"
+version: "2.0.11"
 apparmor_profile: straitjacket/interpreter/guile
 filename: source.scm
 docker_image: straitjacket-guile
@@ -28,5 +28,5 @@ tests:
     source: |
       (begin (display (make-string 1073741824)) (newline))
     stdout: "\\A\\z"
-    stderr: "\\AGC Warning: Out of Memory!  Returning NIL!\n\\z"
+    stderr: "GC Warning: Out of Memory!"
     exitstatus: 139

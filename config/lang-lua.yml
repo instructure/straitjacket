@@ -1,6 +1,6 @@
 name: lua
 visible_name: Lua 5.2
-version: 5.2
+version: "5.2.3"
 apparmor_profile: straitjacket/interpreter/default
 filename: source.lua
 docker_image: straitjacket-lua

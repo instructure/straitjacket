@@ -1,4 +1,4 @@
-FROM buildpack-deps:wheezy
+FROM buildpack-deps:jessie
 
 RUN curl -f -L https://static.rust-lang.org/rustup.sh -O && \
     SHELL=sh sh rustup.sh --yes --verbose --revision=1.1.0 --disable-sudo && \

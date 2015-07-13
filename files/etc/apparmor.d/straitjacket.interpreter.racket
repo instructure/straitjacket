@@ -9,5 +9,5 @@ profile straitjacket/interpreter/racket {
   /usr/bin/plt-r5rs r,
   /usr/bin/racket rix,
   /usr/share/racket/** r,
-  /var/local/straitjacket/tmp/source/?*/?* r,
+  /etc/racket/config.rktd r,
 }
