@@ -28,7 +28,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", inline: <<-SCRIPT
   set -e
   apt-get update
-  apt-get install -y btrfs-tools
+  apt-get install -y btrfs-tools apparmor-utils
   mkfs.btrfs /dev/sdb
   mkdir /var/lib/docker
   mount /dev/sdb /var/lib/docker

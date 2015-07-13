@@ -1,0 +1,33 @@
+name: elixir
+visible_name: Elixir 1.0.5
+version: "1.0.5"
+apparmor_profile: straitjacket/interpreter/elixir
+filename: main.exs
+docker_image: straitjacket-elixir
+
+tests:
+  simple:
+    source: |
+      defmodule Main do
+        def main() do
+          IO.puts "Hello, World!"
+        end
+      end
+      Main.main()
+    stdout: "\\AHello, World!\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      IO.puts File.read!('/etc/hosts')
+    stdout:
+    stderr: "could not read file /etc/hosts: permission denied"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      Enum.take(Stream.cycle([0]), 1073741824)
+    stdout:
+    stderr: "Cannot allocate [0-9]+ bytes of memory"
+    exitstatus: 139

@@ -148,7 +148,7 @@ func (lang *Language) runTest(testName string, test *test) error {
 	result, err := lang.Run(&RunOptions{
 		Source:  test.Source,
 		Stdin:   test.Stdin,
-		Timeout: 60,
+		Timeout: 30,
 	})
 
 	if err != nil {

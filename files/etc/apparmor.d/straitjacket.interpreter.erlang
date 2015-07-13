@@ -1,0 +1,24 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/erlang {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+
+  /usr/local/lib/elixir/** r,
+  /usr/local/lib/elixir/bin/** rix,
+  /usr/lib/erlang/** r,
+  /usr/lib/erlang/bin/** rix,
+  /usr/lib/erlang/**/bin/** rix,
+
+  # elixir internally shells out to these commands
+  /usr/bin/dirname rix,
+  /usr/bin/basename rix,
+  /usr/bin/expr rix,
+  /bin/readlink rix,
+  /bin/sed rix,
+  /usr/bin/erl rix,
+
+  # erlang loooves processes and memory
+  set rlimit nproc <= 50,
+  set rlimit as <= 1000M,
+}

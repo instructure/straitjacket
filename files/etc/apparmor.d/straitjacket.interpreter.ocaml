@@ -5,5 +5,4 @@ profile straitjacket/interpreter/ocaml {
   #include <abstractions/straitjacket-base>
 
   /usr/bin/ocaml* rix,
-  /var/local/straitjacket/tmp/source/?*/?* r,
 }

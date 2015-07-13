@@ -1,0 +1,42 @@
+name: erlang
+visible_name: Erlang r18
+version: "18"
+apparmor_profile: straitjacket/interpreter/erlang
+filename: main.erl
+docker_image: straitjacket-erlang
+
+tests:
+  simple:
+    # escript always ignores the first line, so it's important to have something
+    # there that isn't code. The shebang will work fine.
+    source: |
+      #!/usr/bin/env escript
+
+      main(_) ->
+        io:fwrite("Hello, World!~n").
+    stdout: "\\AHello, World!\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      #!/usr/bin/env escript
+
+      main(_) ->
+        case file:read_file("/etc/hosts") of
+          {ok, _} -> io:format("I read it!");
+          {error, eacces} -> io:format("Could not read file")
+        end.
+    stdout: "Could not read file"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      #!/usr/bin/env escript
+
+      main(_) ->
+        lists:seq(1, 1073741824).
+    stdout:
+    stderr: "Cannot allocate [0-9]+ bytes of memory"
+    exitstatus: 139
