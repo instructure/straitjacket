@@ -9,12 +9,22 @@ docker_image: straitjacket-csharp
 tests:
   simple:
     source: |
-      public class HelloWorld {
-         public static void Main() {
-           System.Console.WriteLine("hey c# world, sup?");
-         }
-       }
-    stdout: "\\Ahey c# world, sup\\?\n\\z"
+      public class Template {
+        public static void Main() {
+          string inputLine;
+          System.Collections.ArrayList outputValues = new System.Collections.ArrayList();
+
+          while ((inputLine = System.Console.ReadLine()) != null) {
+            outputValues.Add(System.Convert.ToInt32(inputLine) * 2);
+          }
+
+          foreach (int outputValue in outputValues) {
+            System.Console.WriteLine(outputValue);
+          }
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
