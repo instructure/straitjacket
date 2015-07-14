@@ -14,6 +14,13 @@ var (
 	tempdir  = "/tmp"
 )
 
+type ExecutionResult struct {
+	ExitCode       int
+	Stdout, Stderr string
+	RunTime        time.Duration
+	ErrorString    string
+}
+
 type execution struct {
 	step            string
 	command         []string
@@ -23,7 +30,7 @@ type execution struct {
 	client          *docker.Client
 	container       *docker.Container
 	sentinel        chan struct{}
-	result          *RunResult
+	result          *ExecutionResult
 }
 
 // Initialize a new exeuction object for use.
@@ -35,7 +42,7 @@ func newExecution(step string, command []string, srcDir, dockerImage, apparmorPr
 		dockerImage:     dockerImage,
 		apparmorProfile: apparmorProfile,
 		sentinel:        make(chan struct{}),
-		result:          &RunResult{},
+		result:          &ExecutionResult{},
 	}
 
 	exe.client, err = docker.NewClient(endpoint)
@@ -43,7 +50,7 @@ func newExecution(step string, command []string, srcDir, dockerImage, apparmorPr
 }
 
 // Run the execution with the given options.
-func (exe *execution) run(opts *RunOptions) (result *RunResult, err error) {
+func (exe *execution) run(opts *RunOptions) (result *ExecutionResult, err error) {
 	result = exe.result
 	timeout := false
 	defer exe.cleanup()

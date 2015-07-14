@@ -8,12 +8,19 @@ import (
 	"strconv"
 )
 
-type executionResult struct {
+type executionStep struct {
 	Stdout     string  `json:"stdout"`
 	Stderr     string  `json:"stderr"`
 	ExitStatus int     `json:"exit_status"`
 	Time       float64 `json:"time"`
-	Error      string  `json:"error"`
+	Error      *string `json:"error"`
+}
+
+type executionResult struct {
+	Success     bool           `json:"success"`
+	Error       *string        `json:"error"`
+	Compilation *executionStep `json:"compilation"`
+	Runtime     *executionStep `json:"runtime"`
 }
 
 func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
@@ -46,14 +53,7 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	result := executionResult{
-		Stdout:     runResult.Stdout,
-		Stderr:     runResult.Stderr,
-		ExitStatus: runResult.ExitCode,
-		Time:       runResult.RunTime.Seconds(),
-		Error:      runResult.ErrorString,
-	}
-	json, err := json.Marshal(result)
+	json, err := json.Marshal(buildResult(runResult))
 	if err != nil {
 		panic(err)
 	}
@@ -63,4 +63,43 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func buildResult(runResult *engine.RunResult) *executionResult {
+	result := &executionResult{}
+
+	if runResult.RunStep != nil && runResult.RunStep.ErrorString != "" {
+		result.Error = &runResult.RunStep.ErrorString
+		result.Success = false
+	} else if runResult.CompileStep != nil && runResult.CompileStep.ErrorString != "" {
+		result.Error = &runResult.CompileStep.ErrorString
+		result.Success = false
+	} else {
+		result.Success = true
+	}
+
+	if runResult.CompileStep != nil {
+		result.Compilation = translateExecutionResult(runResult.CompileStep)
+	}
+	if runResult.RunStep != nil {
+		result.Runtime = translateExecutionResult(runResult.RunStep)
+	}
+
+	return result
+}
+
+func translateExecutionResult(result *engine.ExecutionResult) *executionStep {
+	res := &executionStep{
+		Stdout:     result.Stdout,
+		Stderr:     result.Stderr,
+		ExitStatus: result.ExitCode,
+		Time:       result.RunTime.Seconds(),
+		Error:      &result.ErrorString,
+	}
+
+	if *res.Error == "" {
+		res.Error = nil
+	}
+
+	return res
 }

@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -35,10 +34,7 @@ type Language struct {
 }
 
 type RunResult struct {
-	ExitCode       int
-	Stdout, Stderr string
-	RunTime        time.Duration
-	ErrorString    string
+	CompileStep, RunStep *ExecutionResult
 }
 
 type RunOptions struct {
@@ -50,6 +46,8 @@ type RunOptions struct {
 // given stdin and returning exit code, stdout and stderr.
 func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 	var exe *execution
+	result := &RunResult{}
+
 	dir, err := writeFile(lang.Filename, opts.Source)
 	if err != nil {
 		return nil, err
@@ -63,8 +61,8 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 		if err != nil {
 			return nil, err
 		}
-		result, err := exe.run(opts)
-		if err != nil || result.ExitCode != 0 {
+		result.CompileStep, err = exe.run(opts)
+		if err != nil || result.CompileStep.ExitCode != 0 {
 			return result, err
 		}
 	}
@@ -73,7 +71,7 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	result, err := exe.run(opts)
+	result.RunStep, err = exe.run(opts)
 
 	return result, err
 }
@@ -156,13 +154,19 @@ func (lang *Language) runTest(testName string, test *test) error {
 		return fmt.Errorf("Failure testing '%s' (%s): %v", lang.Name, testName, err)
 	}
 
-	errorString := fmt.Sprintf("for '%s' (%s).\nexit code: %d\nstdout: %v\nstderr: %v\nerror: %s\n", lang.Name, testName, result.ExitCode, result.Stdout, result.Stderr, result.ErrorString)
+	output, _ := yaml.Marshal(result)
 
-	if result.ExitCode != test.ExitStatus {
+	errorString := fmt.Sprintf("for '%s' (%s).\n%s", lang.Name, testName, output)
+
+	if result.RunStep == nil {
+		return fmt.Errorf("Didn't run %s", errorString)
+	}
+
+	if result.RunStep.ExitCode != test.ExitStatus {
 		return fmt.Errorf("Incorrect exit code %s", errorString)
 	}
 
-	match, err := regexp.MatchString(test.Stderr, result.Stderr)
+	match, err := regexp.MatchString(test.Stderr, result.RunStep.Stderr)
 	if err != nil {
 		return err
 	}
@@ -170,7 +174,7 @@ func (lang *Language) runTest(testName string, test *test) error {
 		return fmt.Errorf("Incorrect stderr %s", errorString)
 	}
 
-	match, err = regexp.MatchString(test.Stdout, result.Stdout)
+	match, err = regexp.MatchString(test.Stdout, result.RunStep.Stdout)
 	if err != nil {
 		return err
 	}
