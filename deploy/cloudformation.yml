@@ -47,6 +47,7 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: 1
         MaxBatchSize: 1
+        PauseTime: "PT90S"
 
     Properties:
       AvailabilityZones:
