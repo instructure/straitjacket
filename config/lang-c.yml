@@ -6,6 +6,9 @@ apparmor_profile: straitjacket/compiled/c
 filename: source.c
 docker_image: straitjacket-c
 
+file_extensions:
+  - c
+
 tests:
   simple:
     source: |

@@ -5,6 +5,11 @@ apparmor_profile: straitjacket/interpreter/racket
 filename: source.scm
 docker_image: straitjacket-scheme
 
+file_extensions:
+  - rkt
+  - scm
+  - scheme
+
 tests:
   simple:
     source: |

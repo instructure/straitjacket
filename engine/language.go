@@ -31,6 +31,7 @@ type Language struct {
 	ApparmorProfile string `yaml:"apparmor_profile"`
 	CompilerProfile string `yaml:"compiler_profile"`
 	Tests           tests
+	FileExtensions  []string `yaml:"file_extensions"`
 }
 
 type RunResult struct {

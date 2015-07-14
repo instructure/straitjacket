@@ -5,6 +5,11 @@ apparmor_profile: straitjacket/interpreter/default
 filename: source.pl
 docker_image: straitjacket-perl
 
+file_extensions:
+  - pl
+  - plx
+  - perl
+
 tests:
   simple:
     source: |

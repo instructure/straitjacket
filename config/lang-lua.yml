@@ -5,6 +5,9 @@ apparmor_profile: straitjacket/interpreter/default
 filename: source.lua
 docker_image: straitjacket-lua
 
+file_extensions:
+  - lua
+
 tests:
   simple:
     source: print "hi from lua"

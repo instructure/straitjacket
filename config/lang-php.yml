@@ -5,6 +5,10 @@ apparmor_profile: straitjacket/interpreter/default
 filename: source.php
 docker_image: straitjacket-php
 
+file_extensions:
+  - php
+  - php5
+
 tests:
   simple:
     source: |

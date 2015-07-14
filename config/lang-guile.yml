@@ -5,6 +5,9 @@ apparmor_profile: straitjacket/interpreter/guile
 filename: source.scm
 docker_image: straitjacket-guile
 
+file_extensions:
+  - guile
+
 tests:
   simple:
     source: |

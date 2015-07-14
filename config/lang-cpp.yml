@@ -6,6 +6,11 @@ apparmor_profile: straitjacket/compiled/c
 filename: source.cpp
 docker_image: straitjacket-cpp
 
+file_extensions:
+  - cpp
+  - cxx
+  - c++
+
 tests:
   simple:
     source: |

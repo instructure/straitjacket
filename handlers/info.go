@@ -15,12 +15,23 @@ type AppInfo struct {
 	Extensions map[string]string `json:"extensions"`
 }
 
+var extensionsMap map[string]string
+
 func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 
 	langMap := make(map[string]Option)
 	for _, lang := range ctx.Engine.Languages {
 		langMap[lang.Name] = Option{VisibleName: lang.VisibleName, Version: lang.Version}
+	}
+
+	if extensionsMap == nil {
+		extensionsMap = make(map[string]string)
+		for _, lang := range ctx.Engine.Languages {
+			for _, ext := range lang.FileExtensions {
+				extensionsMap[ext] = lang.Name
+			}
+		}
 	}
 
 	options := AppInfo{
@@ -37,47 +48,4 @@ func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-var extensionsMap = map[string]string{
-	"sh":         "bash",
-	"bash":       "bash",
-	"c":          "c",
-	"cs":         "c#",
-	"c#":         "c#",
-	"cpp":        "cpp",
-	"cxx":        "cpp",
-	"c++":        "cpp",
-	"d":          "d",
-	"f90":        "fortran",
-	"fortran":    "fortran",
-	"go":         "go",
-	"guile":      "guile",
-	"hs":         "haskell",
-	"haskell":    "haskell",
-	"java":       "java",
-	"js":         "javascript",
-	"sjs":        "javascript",
-	"ssjs":       "javascript",
-	"javascript": "javascript",
-	"lua":        "lua",
-	"ml":         "ocaml",
-	"ocaml":      "ocaml",
-	"pl":         "perl",
-	"plx":        "perl",
-	"perl":       "perl",
-	"php":        "php",
-	"php5":       "php",
-	"py":         "python",
-	"pyw":        "python",
-	"xpy":        "python",
-	"python":     "python",
-	"rb":         "ruby",
-	"rbw":        "ruby",
-	"rbx":        "ruby",
-	"ruby":       "ruby",
-	"scala":      "scala",
-	"rkt":        "scheme",
-	"scm":        "scheme",
-	"scheme":     "scheme",
 }

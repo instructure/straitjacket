@@ -5,6 +5,12 @@ apparmor_profile: straitjacket/interpreter/node
 filename: source.js
 docker_image: straitjacket-nodejs
 
+file_extensions:
+  - js
+  - sjs
+  - ssjs
+  - javascript
+
 tests:
   simple:
     source: |

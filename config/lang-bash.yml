@@ -5,6 +5,10 @@ apparmor_profile: straitjacket/interpreter/default
 filename: source.sh
 docker_image: straitjacket-bash
 
+file_extensions:
+  - bash
+  - sh
+
 tests:
   simple:
     source: echo -n hello from bash

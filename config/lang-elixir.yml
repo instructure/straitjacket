@@ -5,6 +5,10 @@ apparmor_profile: straitjacket/interpreter/erlang
 filename: main.exs
 docker_image: straitjacket-elixir
 
+file_extensions:
+  - ex
+  - exs
+
 tests:
   simple:
     source: |

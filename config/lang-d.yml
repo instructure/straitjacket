@@ -6,6 +6,9 @@ apparmor_profile: straitjacket/compiled/d
 filename: source.d
 docker_image: straitjacket-d
 
+file_extensions:
+  - d
+
 tests:
   simple:
     source: |

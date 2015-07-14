@@ -6,6 +6,11 @@ apparmor_profile: straitjacket/compiled/gfortran
 filename: source.f08
 docker_image: straitjacket-fortran
 
+file_extensions:
+  - f08
+  - f90
+  - fortran
+
 tests:
   simple:
     source: |

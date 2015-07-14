@@ -5,6 +5,12 @@ apparmor_profile: straitjacket/interpreter/ruby1.9
 filename: source.rb
 docker_image: straitjacket-ruby
 
+file_extensions:
+  - rb
+  - rbw
+  - rbx
+  - ruby
+
 tests:
   simple:
     source: |

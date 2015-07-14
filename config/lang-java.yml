@@ -6,6 +6,9 @@ apparmor_profile: straitjacket/compiled/java
 filename: Main.java
 docker_image: straitjacket-java
 
+file_extensions:
+  - java
+
 tests:
   simple:
     source: |

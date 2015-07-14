@@ -6,6 +6,9 @@ apparmor_profile: straitjacket/compiled/go
 filename: source.go
 docker_image: straitjacket-go
 
+file_extensions:
+  - go
+
 tests:
   simple:
     source: |

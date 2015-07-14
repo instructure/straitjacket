@@ -6,6 +6,10 @@ apparmor_profile: straitjacket/compiled/ghc
 filename: source.hs
 docker_image: straitjacket-haskell
 
+file_extensions:
+  - hs
+  - haskell
+
 tests:
   simple:
     source: |

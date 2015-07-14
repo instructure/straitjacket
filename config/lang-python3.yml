@@ -5,6 +5,12 @@ apparmor_profile: straitjacket/interpreter/python
 filename: source.py
 docker_image: straitjacket-python3
 
+file_extensions:
+  - py
+  - pyw
+  - xpy
+  - python
+
 tests:
   simple:
     source: |

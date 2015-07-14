@@ -6,6 +6,10 @@ apparmor_profile: straitjacket/compiled/csharp
 filename: source.cs
 docker_image: straitjacket-csharp
 
+file_extensions:
+  - cs
+  - c#
+
 tests:
   simple:
     source: |

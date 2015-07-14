@@ -6,6 +6,9 @@ apparmor_profile: straitjacket/compiled/rust
 filename: main.rs
 docker_image: straitjacket-rust
 
+file_extensions:
+  - rs
+
 tests:
   simple:
     source: |

@@ -5,6 +5,9 @@ apparmor_profile: straitjacket/interpreter/erlang
 filename: main.erl
 docker_image: straitjacket-erlang
 
+file_extensions:
+  - erl
+
 tests:
   simple:
     # escript always ignores the first line, so it's important to have something
