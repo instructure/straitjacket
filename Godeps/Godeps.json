@@ -20,6 +20,10 @@
 			"Rev": "9cb89f07ca03c6a28d1e237ba033bc6a29422fd6"
 		},
 		{
+			"ImportPath": "github.com/rs/cors",
+			"Rev": "5e4ce6bc0ecd3472f6f943666d84876691be2ced"
+		},
+		{
 			"ImportPath": "gopkg.in/yaml.v2",
 			"Rev": "7ad95dd0798a40da1ccdff6dff35fd177b5edf40"
 		}

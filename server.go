@@ -1,11 +1,13 @@
 package main
 
 import (
+	"net/http"
 	"straitjacket/engine"
 	"straitjacket/handlers"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func newServerStack(engine *engine.Engine) *negroni.Negroni {
@@ -18,7 +20,8 @@ func newServerStack(engine *engine.Engine) *negroni.Negroni {
 	router.HandleFunc("/execute", context.ExecuteHandler)
 	router.HandleFunc("/info", context.InfoHandler)
 
-	server := negroni.New(negroni.NewRecovery(), negroni.NewLogger())
+	c := cors.Default()
+	server := negroni.New(negroni.NewRecovery(), negroni.NewLogger(), c, negroni.NewStatic(http.Dir("public")))
 	server.UseHandler(router)
 	return server
 }

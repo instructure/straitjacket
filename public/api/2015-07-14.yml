@@ -1,0 +1,121 @@
+swagger: "2.0"
+info:
+  title: StraitJacket
+  version: "2015-07-14"
+  description: A safe and secure remote execution environment framework.
+
+basePath: /
+schemes:
+  - http
+
+paths:
+  /info:
+    get:
+      operationId: Info
+      summary: Get information about supported languages.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: successful response
+          schema:
+            $ref: "#/definitions/InfoResponse"
+  /execute:
+    post:
+      operationId: Execute
+      summary: Execute code in a sandboxed environment.
+      parameters:
+        - in: formData
+          name: language
+          description: The language to execute. Valid values are returned by the /info endpoint.
+          required: true
+          type: string
+        - in: formData
+          name: source
+          description: The source code to execute.
+          required: true
+          type: string
+        - in: formData
+          name: stdin
+          description: The stdin to pipe to the running code.
+          required: false
+          type: string
+        - in: formData
+          name: timelimit
+          description: Time limit to apply to each execution step, in seconds. Defaults to 60s.
+          required: false
+          type: number
+          format: seconds
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: successful response
+          schema:
+            $ref: "#/definitions/ExecuteResponse"
+
+definitions:
+  InfoResponse:
+    properties:
+      languages:
+        description: The supported languages for execution
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/Language"
+      extensions:
+        description: A mapping of file extension to language
+        type: object
+
+  Language:
+    description: A supported execution language
+    properties:
+      name:
+        type: string
+        description: The language identifier
+      visible_name:
+        type: string
+        description: A more descriptive name suitable for display
+      version:
+        type: string
+        description: The current version of the language/environment
+
+  ExecuteResponse:
+    description: The result of a code execution
+    properties:
+      success:
+        type: boolean
+        description: Whether the execution was completely successful
+      error:
+        type: string
+        description: If not successful, the error code
+        enum:
+          - compilation_timelimit
+          - compilation_error
+          - runtime_timelimit
+          - runtime_error
+      compilation:
+        $ref: "#/definitions/ExecutionStep"
+        description: The results of the compile step, if code was compiled
+      runtime:
+        $ref: "#/definitions/ExecutionStep"
+        description: The results of the run step, if the code was run
+
+  ExecutionStep:
+    description: Results of an execution step.
+    properties:
+      exit_status:
+        type: number
+        description: The (unix) exit code of the process that was run
+      time:
+        type: number
+        description: How long this execution step took, in seconds
+        format: seconds
+      error:
+        type: string
+        description: If not successful, the error code. See ExecuteResponse.error for valid values
+      stdout:
+        type: string
+        description: The stdout of the process
+      stderr:
+        type: string
+        description: The stderr of the process
