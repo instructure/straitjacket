@@ -8,6 +8,11 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.3-3-g07d998d",
+			"Rev": "07d998d174c4e2dc90e2f1989a20724220bca1ff"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/negroni",
 			"Comment": "v0.1-70-gc7477ad",
 			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
@@ -27,6 +32,14 @@
 		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "47e8f450ef38c857cdd922ec08862ca9d65a1c6d"
+		},
+		{
+			"ImportPath": "github.com/meatballhat/negroni-logrus",
+			"Rev": "eed9b3e979c39c3cd0a639b6c3a58d604f262b96"
+		},
+		{
+			"ImportPath": "github.com/pilu/xrequestid",
+			"Rev": "88cf036db8935fc349ba6d76cae820fa48bfbcb6"
 		},
 		{
 			"ImportPath": "github.com/rs/cors",

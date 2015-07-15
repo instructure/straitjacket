@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"straitjacket/engine"
 	"strconv"
+
+	"github.com/Sirupsen/logrus"
 )
 
 type executionStep struct {
@@ -29,7 +30,12 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	stdin := req.FormValue("stdin")
 	timelimit := req.FormValue("timelimit")
 
-	log.Println(languageName, source, stdin, timelimit)
+	ctx.logger(req).WithFields(logrus.Fields{
+		"language":  languageName,
+		"source":    source,
+		"stdin":     stdin,
+		"timelimit": timelimit,
+	}).Info("executing code")
 
 	timeout, err := parseTimelimit(timelimit)
 	if err != nil {

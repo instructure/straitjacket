@@ -159,9 +159,7 @@ func TestExecuteResponse(t *testing.T) {
 	req.PostForm.Set("stdin", "stdin")
 	req.PostForm.Set("timelimit", "5")
 	w := httptest.NewRecorder()
-	ctx := &Context{
-		Engine: fake,
-	}
+	ctx := NewContext(fake)
 	ctx.ExecuteHandler(w, req)
 
 	expected := `{
