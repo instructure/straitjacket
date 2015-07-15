@@ -36,12 +36,9 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	var timeout int64 = 60
-	if timelimit != "" {
-		timeout, err = strconv.ParseInt(timelimit, 10, 64)
-		if err != nil {
-			panic(err)
-		}
+	timeout, err := parseTimelimit(timelimit)
+	if err != nil {
+		panic(err)
 	}
 
 	runResult, err := language.Run(&engine.RunOptions{
@@ -63,6 +60,14 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func parseTimelimit(timelimit string) (timeout int64, err error) {
+	timeout = 60
+	if timelimit != "" {
+		timeout, err = strconv.ParseInt(timelimit, 10, 64)
+	}
+	return
 }
 
 func buildResult(runResult *engine.RunResult) *executionResult {
