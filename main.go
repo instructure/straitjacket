@@ -32,7 +32,7 @@ func runLanguageTests(engine *engine.Engine, langToRun string) {
 	for _, lang := range engine.Languages() {
 		if langToRun == "" || langToRun == lang.Name {
 			fmt.Printf("Testing %s\n", lang.VisibleName)
-			err := lang.RunTests()
+			err := lang.RunChecks()
 			if err != nil {
 				panic(err)
 			}

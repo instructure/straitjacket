@@ -4,19 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"regexp"
 
 	"gopkg.in/yaml.v2"
 )
-
-type test struct {
-	Source, Stdin, Stdout, Stderr string
-	ExitStatus                    int
-}
-
-type tests struct {
-	Simple, Apparmor, Rlimit test
-}
 
 // Language represents a supported execution language, read from the config yml
 // files. It provides a Run method for sandboxed code execution.
@@ -27,16 +17,20 @@ type Language struct {
 	Filename        string
 	DockerImage     string `yaml:"docker_image"`
 	compileStep     bool
-	ApparmorProfile string `yaml:"apparmor_profile"`
-	CompilerProfile string `yaml:"compiler_profile"`
-	Tests           tests
+	ApparmorProfile string   `yaml:"apparmor_profile"`
+	CompilerProfile string   `yaml:"compiler_profile"`
+	Checks          checks   `yaml:"tests"`
 	FileExtensions  []string `yaml:"file_extensions"`
 }
 
+// RunResult contains the full results for each executed step of a code run.
+// Some languages don't have a compile step, and the run step will be nil if
+// compilation failed.
 type RunResult struct {
 	CompileStep, RunStep *ExecutionResult
 }
 
+// RunOptions is configuration for a Language Run.
 type RunOptions struct {
 	Source, Stdin string
 	Timeout       int64
@@ -122,67 +116,6 @@ func loadLanguage(configName string) (lang *Language, err error) {
 		err = lang.validate()
 	}
 	return
-}
-
-// RunTests does sanity checks on all supported Languages, including checks that
-// stdin/stdout work as expected, and basic verification that the AppArmor
-// profile is in effect.
-func (lang *Language) RunTests() (err error) {
-	err = lang.runTest("simple", &lang.Tests.Simple)
-	if lang.ApparmorProfile == "" {
-		// skip the apparmor tests when it's been disabled
-		return
-	}
-
-	if err == nil {
-		err = lang.runTest("apparmor", &lang.Tests.Apparmor)
-	}
-	if err == nil {
-		err = lang.runTest("rlimit", &lang.Tests.Rlimit)
-	}
-	return
-}
-
-func (lang *Language) runTest(testName string, test *test) error {
-	result, err := lang.Run(&RunOptions{
-		Source:  test.Source,
-		Stdin:   test.Stdin,
-		Timeout: 30,
-	})
-
-	if err != nil {
-		return fmt.Errorf("Failure testing '%s' (%s): %v", lang.Name, testName, err)
-	}
-
-	output, _ := yaml.Marshal(result)
-
-	errorString := fmt.Sprintf("for '%s' (%s).\n%s", lang.Name, testName, output)
-
-	if result.RunStep == nil {
-		return fmt.Errorf("Didn't run %s", errorString)
-	}
-
-	if result.RunStep.ExitCode != test.ExitStatus {
-		return fmt.Errorf("Incorrect exit code %s", errorString)
-	}
-
-	match, err := regexp.MatchString(test.Stderr, result.RunStep.Stderr)
-	if err != nil {
-		return err
-	}
-	if match == false {
-		return fmt.Errorf("Incorrect stderr %s", errorString)
-	}
-
-	match, err = regexp.MatchString(test.Stdout, result.RunStep.Stdout)
-	if err != nil {
-		return err
-	}
-	if match == false {
-		return fmt.Errorf("Incorrect stdout %s", errorString)
-	}
-
-	return nil
 }
 
 func (lang *Language) disableAppArmor() {

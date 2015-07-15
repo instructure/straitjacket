@@ -14,11 +14,17 @@ var (
 	tempdir  = "/tmp"
 )
 
+// ExecutionResult contains the results from one step of code execution --
+// either compilation or running.
 type ExecutionResult struct {
-	ExitCode       int
+	// The exit status code of the process. 0 is success, anything else is failure.
+	ExitCode int
+	// The output streams.
 	Stdout, Stderr string
-	RunTime        time.Duration
-	ErrorString    string
+	// How long this step ran.
+	RunTime time.Duration
+	// If an error occured, this error string will be non-empty.
+	ErrorString string
 }
 
 type execution struct {
