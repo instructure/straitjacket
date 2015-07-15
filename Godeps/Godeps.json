@@ -3,8 +3,8 @@
 	"GoVersion": "go1.4.2",
 	"Packages": [
 		".",
-		"./engine",
-		"./handlers"
+		"./handlers",
+		"./engine"
 	],
 	"Deps": [
 		{
@@ -15,6 +15,10 @@
 		{
 			"ImportPath": "github.com/fsouza/go-dockerclient",
 			"Rev": "69eb698fe078e24f52c14cc2f7ba6027ddebfd31"
+		},
+		{
+			"ImportPath": "github.com/golang/mock/gomock",
+			"Rev": "15f8b22550555c0d3edf5afa97d74001bda2208b"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
@@ -30,6 +34,11 @@
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/require",
 			"Comment": "v1.0-17-g089c718",
 			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
 		},

@@ -6,7 +6,20 @@ import (
 )
 
 type Engine struct {
-	Languages []*Language
+	languages []*Language
+}
+
+func (eng *Engine) Languages() []*Language {
+	return eng.languages
+}
+
+func (eng *Engine) Run(languageName string, opts *RunOptions) (*RunResult, error) {
+	lang := eng.findLanguage(languageName)
+	if lang == nil {
+		return nil, fmt.Errorf("Language not found: '%s'", languageName)
+	}
+
+	return lang.Run(opts)
 }
 
 func New(confPath string, disableApparmor bool) (result *Engine, err error) {
@@ -32,17 +45,17 @@ func New(confPath string, disableApparmor bool) (result *Engine, err error) {
 		if disableApparmor {
 			lang.disableAppArmor()
 		}
-		result.Languages = append(result.Languages, lang)
+		result.languages = append(result.languages, lang)
 	}
 
 	return
 }
 
-func (engine *Engine) FindLanguage(name string) (*Language, error) {
-	for _, lang := range engine.Languages {
+func (engine *Engine) findLanguage(name string) *Language {
+	for _, lang := range engine.Languages() {
 		if lang.Name == name {
-			return lang, nil
+			return lang
 		}
 	}
-	return nil, fmt.Errorf("Language '%s' not found", name)
+	return nil
 }

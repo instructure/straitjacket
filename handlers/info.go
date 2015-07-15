@@ -16,18 +16,16 @@ type appInfo struct {
 	Extensions map[string]string   `json:"extensions"`
 }
 
-var extensionsMap map[string]string
-
 func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 
-	if extensionsMap == nil {
-		extensionsMap = makeExtensionsMap(ctx.Engine.Languages)
+	if ctx.extensionsMap == nil {
+		ctx.extensionsMap = makeExtensionsMap(ctx.Engine.Languages())
 	}
 
 	options := appInfo{
-		Languages:  langMap(ctx.Engine.Languages),
-		Extensions: extensionsMap,
+		Languages:  langMap(ctx.Engine.Languages()),
+		Extensions: ctx.extensionsMap,
 	}
 
 	json, err := json.Marshal(options)
@@ -50,7 +48,7 @@ func langMap(languages []*engine.Language) map[string]language {
 }
 
 func makeExtensionsMap(languages []*engine.Language) map[string]string {
-	extensionsMap = make(map[string]string)
+	extensionsMap := make(map[string]string)
 	for _, lang := range languages {
 		for _, ext := range lang.FileExtensions {
 			extensionsMap[ext] = lang.Name

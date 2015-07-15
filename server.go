@@ -12,7 +12,7 @@ import (
 
 func newServerStack(engine *engine.Engine) *negroni.Negroni {
 	context := &handlers.Context{
-		Engine: *engine,
+		Engine: engine,
 	}
 
 	router := mux.NewRouter().StrictSlash(true)

@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"straitjacket/engine"
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -123,4 +126,62 @@ func TestFailedRuntimeStep(t *testing.T) {
 	assert.Equal(t, "runtime_error", *result.Error)
 	assert.Equal(t, 0, result.Compilation.ExitStatus)
 	assert.Equal(t, 3, result.Runtime.ExitStatus)
+}
+
+func TestExecuteResponse(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fake := NewMockEngine(mockCtrl)
+	fake.EXPECT().Run("c#", &engine.RunOptions{
+		Source:  "source",
+		Stdin:   "stdin",
+		Timeout: 5,
+	}).Return(&engine.RunResult{
+		CompileStep: &engine.ExecutionResult{
+			ExitCode: 0,
+			Stdout:   "x",
+			Stderr:   "y",
+			RunTime:  3 * time.Second,
+		},
+		RunStep: &engine.ExecutionResult{
+			ErrorString: "runtime_error",
+			ExitCode:    15,
+			Stdout:      "rx",
+			Stderr:      "ry",
+			RunTime:     2 * time.Second,
+		},
+	}, nil)
+
+	req, _ := http.NewRequest("POST", "/execute", nil)
+	req.PostForm = make(map[string][]string)
+	req.PostForm.Set("language", "c#")
+	req.PostForm.Set("source", "source")
+	req.PostForm.Set("stdin", "stdin")
+	req.PostForm.Set("timelimit", "5")
+	w := httptest.NewRecorder()
+	ctx := &Context{
+		Engine: fake,
+	}
+	ctx.ExecuteHandler(w, req)
+
+	expected := `{
+	  "success": false,
+		"error": "runtime_error",
+		"compilation": {
+		  "time": 3,
+			"stdout": "x",
+			"stderr": "y",
+			"exit_status": 0,
+			"error": null
+		},
+	  "runtime": {
+		  "time": 2,
+			"error": "runtime_error",
+			"exit_status": 15,
+			"stdout": "rx",
+			"stderr": "ry"
+		}
+	}`
+
+	assertJSONResponse(t, expected, w)
 }

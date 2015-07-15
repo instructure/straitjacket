@@ -31,17 +31,12 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 
 	log.Println(languageName, source, stdin, timelimit)
 
-	language, err := ctx.Engine.FindLanguage(languageName)
-	if err != nil {
-		panic(err)
-	}
-
 	timeout, err := parseTimelimit(timelimit)
 	if err != nil {
 		panic(err)
 	}
 
-	runResult, err := language.Run(&engine.RunOptions{
+	runResult, err := ctx.Engine.Run(languageName, &engine.RunOptions{
 		Source:  source,
 		Stdin:   stdin,
 		Timeout: timeout,
