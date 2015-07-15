@@ -16,9 +16,9 @@ func newServerStack(engine *engine.Engine) *negroni.Negroni {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", context.IndexHandler)
-	router.HandleFunc("/execute", context.ExecuteHandler)
-	router.HandleFunc("/info", context.InfoHandler)
+	router.HandleFunc("/", context.IndexHandler).Methods("GET")
+	router.HandleFunc("/execute", context.ExecuteHandler).Methods("POST")
+	router.HandleFunc("/info", context.InfoHandler).Methods("GET")
 
 	c := cors.Default()
 	server := negroni.New(negroni.NewRecovery(), negroni.NewLogger(), c, negroni.NewStatic(http.Dir("public")))

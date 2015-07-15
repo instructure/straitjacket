@@ -45,7 +45,6 @@ paths:
           description: Time limit to apply to each execution step, in seconds. Defaults to 60s.
           required: false
           type: number
-          format: seconds
       produces:
         - application/json
       responses:
@@ -109,7 +108,6 @@ definitions:
       time:
         type: number
         description: How long this execution step took, in seconds
-        format: seconds
       error:
         type: string
         description: If not successful, the error code. See ExecuteResponse.error for valid values
