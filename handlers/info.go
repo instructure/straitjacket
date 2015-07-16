@@ -7,13 +7,14 @@ import (
 )
 
 type language struct {
+	Name        string `json:"name"`
 	VisibleName string `json:"visible_name"`
 	Version     string `json:"version"`
 }
 
 type appInfo struct {
-	Languages  map[string]language `json:"languages"`
-	Extensions map[string]string   `json:"extensions"`
+	Languages  []*language       `json:"languages"`
+	Extensions map[string]string `json:"extensions"`
 }
 
 func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
@@ -24,7 +25,7 @@ func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	options := appInfo{
-		Languages:  langMap(ctx.Engine.Languages()),
+		Languages:  langList(ctx.Engine.Languages()),
 		Extensions: ctx.extensionsMap,
 	}
 
@@ -39,12 +40,11 @@ func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func langMap(languages []*engine.Language) map[string]language {
-	langMap := make(map[string]language)
+func langList(languages []*engine.Language) (langList []*language) {
 	for _, lang := range languages {
-		langMap[lang.Name] = language{VisibleName: lang.VisibleName, Version: lang.Version}
+		langList = append(langList, &language{Name: lang.Name, VisibleName: lang.VisibleName, Version: lang.Version})
 	}
-	return langMap
+	return
 }
 
 func makeExtensionsMap(languages []*engine.Language) map[string]string {

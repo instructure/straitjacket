@@ -23,21 +23,17 @@ subsequent AppArmor team!
 API
 ===
 
-The API has two calls.
+The API has two calls:
 
 ```
 GET /info
- * No arguments.
- * This will return, in JSON format, server info, such as what languages are
-   currently supported.
-
 POST /execute
- * Takes parameters: language (required), stdin (required, but can be empty),
-   source (required), and timelimit (optional, in seconds).
- * Returns, in JSON format, stdout, stderr, exitstatus, time, and error.
 ```
 
-A sample client library is provided in the samples directory.
+You can view the API documentation directly from github at
+http://petstore.swagger.io/?url=https://raw.githubusercontent.com/instructure/straitjacket/master/public/api/2015-07-14.yml
+though you'll need to spin up an instance of straitjacket to actually perform
+API calls from that page.
 
 Installation
 =====

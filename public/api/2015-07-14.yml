@@ -12,6 +12,8 @@ paths:
   /info:
     get:
       operationId: Info
+      tags:
+        - code_execution
       summary: Get information about supported languages.
       produces:
         - application/json
@@ -23,6 +25,8 @@ paths:
   /execute:
     post:
       operationId: Execute
+      tags:
+        - code_execution
       summary: Execute code in a sandboxed environment.
       parameters:
         - in: formData
@@ -58,19 +62,23 @@ definitions:
     properties:
       languages:
         description: The supported languages for execution
-        type: object
-        additionalProperties:
+        type: array
+        items:
           $ref: "#/definitions/Language"
       extensions:
         description: A mapping of file extension to language
         type: object
+        example:
+          rb: ruby
+          ex: elixir
+          exs: elixir
 
   Language:
     description: A supported execution language
     properties:
       name:
         type: string
-        description: The language identifier
+        description: The language identifier, passed as a parameter to execute calls
       visible_name:
         type: string
         description: A more descriptive name suitable for display

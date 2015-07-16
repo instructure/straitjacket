@@ -9,13 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLangMap(t *testing.T) {
-	langs := langMap(testLangs)
+func TestLangList(t *testing.T) {
+	langs := langList(testLangs)
 	assert.Equal(t, 2, len(langs))
-	assert.Equal(t, "Ruby 2.2", langs["ruby"].VisibleName)
-	assert.Equal(t, "D (GDC)", langs["d"].VisibleName)
-	assert.Equal(t, "2.2", langs["ruby"].Version)
-	assert.Equal(t, "2.5.5.9", langs["d"].Version)
+	assert.Equal(t, "d", langs[0].Name)
+	assert.Equal(t, "ruby", langs[1].Name)
+	assert.Equal(t, "D (GDC)", langs[0].VisibleName)
+	assert.Equal(t, "Ruby 2.2", langs[1].VisibleName)
+	assert.Equal(t, "2.5.5.9", langs[0].Version)
+	assert.Equal(t, "2.2", langs[1].Version)
 }
 
 func TestExtensionMap(t *testing.T) {
@@ -40,10 +42,10 @@ func TestInfoResponse(t *testing.T) {
 	ctx.InfoHandler(w, req)
 
 	expected := `{
-	  "languages": {
-		  "ruby": { "visible_name": "Ruby 2.2", "version": "2.2" },
-			"d": { "visible_name": "D (GDC)", "version": "2.5.5.9" }
-		},
+	  "languages": [
+			{ "name": "d", "visible_name": "D (GDC)", "version": "2.5.5.9" },
+		  { "name": "ruby", "visible_name": "Ruby 2.2", "version": "2.2" }
+		],
 		"extensions": {
 		  "rb": "ruby",
 			"d": "d",
