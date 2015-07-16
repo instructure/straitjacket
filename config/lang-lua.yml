@@ -10,8 +10,25 @@ file_extensions:
 
 tests:
   simple:
-    source: print "hi from lua"
-    stdout: "\\Ahi from lua\n\\z"
+    source: |
+      local lines = {}
+
+      local function processLine(line)
+        local number = tonumber(line)
+        return number * 2
+      end
+
+      -- read the lines in table 'lines'
+      for line in io.lines() do
+        table.insert(lines, line)
+      end
+
+      -- write all the lines
+      for i, l in ipairs(lines) do
+        io.write(processLine(l), "\n")
+      end
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

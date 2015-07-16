@@ -13,11 +13,30 @@ tests:
   simple:
     source: |
       package main
-      import fmt "fmt"
+      import (
+        "bufio"
+        "fmt"
+        "os"
+        "strconv"
+      )
       func main() {
-        fmt.Printf("Hello from Go\n")
+        var lines []string
+        scanner := bufio.NewScanner(os.Stdin)
+        for scanner.Scan() {
+          lines = append(lines, scanner.Text())
+        }
+
+        for _, line := range lines {
+          fmt.Println(process(line))
+        }
       }
-    stdout: "\\AHello from Go\n\\z"
+
+      func process(line string) string {
+        number, _ := strconv.Atoi(line)
+        return strconv.Itoa(number * 2)
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

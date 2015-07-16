@@ -15,11 +15,25 @@ tests:
   simple:
     source: |
       #include <iostream>
-      int main(int argc, char** argv) {
-        std::cout << "cpp compilation succeeded" << std::endl;
-        return 0;
+      #include <string>
+      #include <vector>
+
+      using namespace std;
+
+      int main ()
+      {
+        string line;
+        vector<string> lines = vector<string>();
+        while( getline(cin, line) ) {
+          lines.push_back(line);
+        }
+
+        for (int i = 0; i < lines.size(); i++) {
+          cout << (stoi(lines[i]) * 2) << endl;
+        }
       }
-    stdout: "\\Acpp compilation succeeded\n\\z"
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

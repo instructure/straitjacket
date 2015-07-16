@@ -3,7 +3,9 @@
 set -e
 
 if [ "$1" == "--build" ]; then
-  gdc -o /src/app $2
+  # libcurl appears to always be required due to an outstanding dependency issue:
+  # http://forum.dlang.org/post/mhe0v7$22pm$1@digitalmars.com
+  gdc -lcurl -o /src/app $2
 else
   /src/app
 fi

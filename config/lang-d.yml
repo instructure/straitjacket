@@ -13,11 +13,17 @@ tests:
   simple:
     source: |
       import std.stdio;
-      int main() {
-        std.stdio.writefln("Hello from D");
-        return 0;
+      import std.algorithm;
+      import std.conv;
+      void main() {
+        auto lines = stdin.byLine();
+        auto numbers = lines.map!(a => to!int(a) * 2);
+        foreach(num; numbers) {
+          writeln(num);
+        }
       }
-    stdout: "\\AHello from D\n\\z"
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

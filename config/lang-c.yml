@@ -13,11 +13,26 @@ tests:
   simple:
     source: |
       #include <stdio.h>
-      int main(int argc, char** argv) {
-        printf("c compilation succeeded\n");
+      #include <stdlib.h>
+
+      #define MAX_LINES 256
+      #define MAX_LINE_LENGTH 256
+
+      int main() {
+        char lines[MAX_LINE_LENGTH][MAX_LINES];
+        int lines_read = 0;
+
+        while(fgets(lines[lines_read], MAX_LINE_LENGTH, stdin)) {
+          lines_read++;
+        }
+
+        for(int i = 0; i < lines_read; i++) {
+          printf("%d\n", atoi(lines[i]) * 2);
+        }
         return 0;
       }
-    stdout: "\\Ac compilation succeeded\n\\z"
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

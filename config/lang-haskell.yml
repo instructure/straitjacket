@@ -13,8 +13,17 @@ file_extensions:
 tests:
   simple:
     source: |
-      main = putStrLn "hello from haskell"
-    stdout: "\\Ahello from haskell\n\\z"
+      import Control.Monad
+      main = do
+        contents <- getContents
+        let inputLines = lines contents
+        mapM_ (putStrLn . processLine) inputLines
+
+      processLine :: String -> String
+      processLine line = show (number * 2)
+        where number = read line :: Int
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

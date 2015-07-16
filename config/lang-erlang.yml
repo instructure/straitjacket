@@ -10,14 +10,23 @@ file_extensions:
 
 tests:
   simple:
-    # escript always ignores the first line, so it's important to have something
-    # there that isn't code. The shebang will work fine.
     source: |
-      #!/usr/bin/env escript
+      # escript always ignores the first line, so it's important to have something there that isn't code.
+
+      read_input() ->
+        case io:get_line("") of
+          eof -> [];
+          Line -> [string:strip(Line, right, $\n)] ++ read_input()
+        end.
 
       main(_) ->
-        io:fwrite("Hello, World!~n").
-    stdout: "\\AHello, World!\n\\z"
+        Lines = read_input(),
+        lists:foreach(fun(Line) -> io:fwrite("~B~n", [process(Line)]) end, Lines).
+
+      process(Line) ->
+        list_to_integer(Line) * 2.
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
