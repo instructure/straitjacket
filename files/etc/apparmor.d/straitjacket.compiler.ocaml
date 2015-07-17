@@ -1,0 +1,27 @@
+#include <tunables/global>
+
+profile straitjacket/compiler/ocaml {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-compiler>
+  # ocaml uses gcc tooling under the hood
+  #include <abstractions/straitjacket-gcc>
+
+  /usr/bin/ocaml* rix,
+  /usr/bin/opam rix,
+  /usr/bin/camlp4 rix,
+  /usr/local/lib/ocaml/** r,
+  /usr/lib/ocaml/** r,
+  /home/docker/.opam/** rw,
+  /home/docker/.opam/*/bin/** rix,
+  / r,
+
+  # used internally by opam
+  /bin/dash rix,
+  /bin/uname rix,
+
+  # used internally by corebuild
+  /bin/mkdir rix,
+  /tmp/** rw,
+  /bin/ln rix,
+}

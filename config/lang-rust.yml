@@ -12,10 +12,33 @@ file_extensions:
 tests:
   simple:
     source: |
-      fn main() {
-        println!("Hello, world!");
+      use std::io;
+      use std::io::prelude::*;
+
+      fn process(line : String) -> String {
+        let num = line.parse::<i32>().unwrap() * 2;
+        return num.to_string();
       }
-    stdout: "\\AHello, world!\n\\z"
+
+      fn main() {
+        let stdin = io::stdin();
+        let mut lines = vec![];
+        let mut processed = vec![];
+
+        for line in stdin.lock().lines() {
+          lines.push(line.unwrap());
+        }
+
+        for line in lines {
+          processed.push(process(line));
+        }
+
+        for line in processed {
+          println!("{}", line);
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

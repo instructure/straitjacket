@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+if [ "$1" == "--build" ]; then
+  eval `opam config env`
+  corebuild source.native
+else
+  exec ./source.native
+fi

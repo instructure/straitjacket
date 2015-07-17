@@ -13,9 +13,12 @@ file_extensions:
 tests:
   simple:
     source: |
-      $message = 'hello from perl';
-      print "$message";
-    stdout: "\\Ahello from perl\\z"
+      my @arr = <>;
+      foreach (@arr) {
+        print (($_ * 2) . "\n");
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

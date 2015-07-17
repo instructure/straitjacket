@@ -1,7 +1,8 @@
 name: ocaml
 visible_name: OCaml 4.01
 version: "4.01.0"
-apparmor_profile: straitjacket/interpreter/ocaml
+compiler_profile: straitjacket/compiler/ocaml
+apparmor_profile: straitjacket/compiled/default
 filename: source.ml
 docker_image: straitjacket-ocaml
 
@@ -12,8 +13,17 @@ file_extensions:
 tests:
   simple:
     source: |
-      print_string "Hello from OCaml!\n";;
-    stdout: "\\AHello from OCaml!\\n\\z"
+      open Core.Std;;
+      let process_line = fun (line) ->
+        let number = int_of_string(line) in
+        number * 2
+      ;;
+
+      let lines = In_channel.input_lines In_channel.stdin in
+      let processedLines = List.map ~f:process_line lines in
+      List.iter ~f:(Printf.printf "%d\n") processedLines
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
@@ -42,5 +52,5 @@ tests:
         close_in chan;
         List.rev !lines
     stdout: "\\A\\z"
-    stderr: "\\AException: Sys_error \"/etc/hosts: Permission denied\"\\.\\n\\z"
+    stderr: "/etc/hosts: Permission denied"
     exitstatus: 2

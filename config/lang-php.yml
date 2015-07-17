@@ -12,8 +12,23 @@ file_extensions:
 tests:
   simple:
     source: |
-      <?php echo 'hi from php' ?>
-    stdout: "\\Ahi from php\\z"
+      <?php
+
+      while (FALSE !== ($line = fgets(STDIN))) {
+        $lines[] = $line;
+      }
+
+      foreach ($lines as $line) {
+        $processed[] = $line * 2;
+      }
+
+      foreach ($processed as $line) {
+        echo "$line\n";
+      }
+
+      ?>
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

@@ -14,9 +14,16 @@ file_extensions:
 tests:
   simple:
     source: |
-      puts "hi from #{$stdin.read}"
-    stdin: ruby
-    stdout: "\\Ahi from ruby\n\\z"
+      def process(line)
+        number = Integer(line) * 2
+        number.to_s
+      end
+
+      lines = $stdin.each_line
+      processed = lines.map { |l| process(l) }
+      processed.each { |l| puts l }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

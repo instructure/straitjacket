@@ -8,10 +8,18 @@ docker_image: straitjacket-python2
 tests:
   simple:
     source: |
-      import sys
-      print("hi from %s" % sys.stdin.read())
-    stdin: python
-    stdout: "hi from python\n"
+            import sys
+
+            def process(line):
+              return str(int(line) * 2)
+
+            lines = sys.stdin.readlines()
+
+            processed = map(process, lines)
+            for line in processed:
+                print line.strip()
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr:
     exitstatus: 0
 
