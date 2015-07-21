@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile straitjacket/interpreter/ruby1.9 {
+profile straitjacket/interpreter/ruby {
   #include <abstractions/base>
   #include <abstractions/ruby>
   #include <abstractions/straitjacket-base>
@@ -10,6 +10,4 @@ profile straitjacket/interpreter/ruby1.9 {
 
   /usr/local/lib/ruby/*/**.rb r,
   /usr/local/lib/ruby/*/**.so rm,
-
-  /var/local/straitjacket/tmp/source/?*/?* r,
 }
