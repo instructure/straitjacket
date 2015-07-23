@@ -22,11 +22,10 @@ func newServerStack(engine *engine.Engine) *negroni.Negroni {
 	router.HandleFunc("/execute", context.ExecuteHandler).Methods("POST")
 	router.HandleFunc("/info", context.InfoHandler).Methods("GET")
 
-	c := cors.Default()
-	server := negroni.New(negroni.NewRecovery(),
-		xrequestid.New(16),
+	server := negroni.New(xrequestid.New(16),
+		context,
 		negronilogrus.NewCustomMiddleware(logrus.InfoLevel, &logrus.JSONFormatter{}, "straitjacket"),
-		c,
+		cors.Default(),
 		negroni.NewStatic(http.Dir("public")))
 	server.UseHandler(router)
 	return server

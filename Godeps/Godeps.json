@@ -4,6 +4,7 @@
 	"Packages": [
 		".",
 		"./handlers",
+		"./errors",
 		"./engine"
 	],
 	"Deps": [
@@ -20,6 +21,10 @@
 		{
 			"ImportPath": "github.com/fsouza/go-dockerclient",
 			"Rev": "69eb698fe078e24f52c14cc2f7ba6027ddebfd31"
+		},
+		{
+			"ImportPath": "github.com/getsentry/raven-go",
+			"Rev": "74c334d7b8aaa4fd1b4fc6aa428c36fed1699e28"
 		},
 		{
 			"ImportPath": "github.com/golang/mock/gomock",
