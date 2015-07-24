@@ -1,0 +1,31 @@
+require 'yaml'
+require 'json'
+
+task default: %w[cloudformation.json]
+
+rule '.json' => '.yml' do |t|
+  doc = YAML.load_file(t.source)
+  doc = cfn_strings(doc)
+  File.open(t.name, 'wb') { |f| f.write(JSON.pretty_generate(doc)) }
+end
+
+# finds any %{Ref: Thing} or %{Fn::Name: [Args]} inside strings,
+# and turns the string into a Fn::Join with those objects interpolated
+def cfn_strings(object)
+  case object
+  when Hash
+    object.each_with_object({}) { |(k,v),h| h[k] = cfn_strings(v) }
+  when Array
+    object.map { |v| cfn_strings(v) }
+  when String
+    if object =~ /%{/
+      parts = object.split(/(%{[^}]+})/)
+      parts = parts.map { |p| p.start_with?('%{') ? YAML.load(p[2..-2]) : p }
+      { "Fn::Join" => ["", parts] }
+    else
+      object
+    end
+  else
+    object
+  end
+end

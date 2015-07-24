@@ -3,6 +3,9 @@ set -e
 
 INSTALL_DIR=/home/ubuntu/straitjacket
 
+# write a blank config file, to be replaced by cloud-init
+touch /etc/straitjacket.env
+
 mkdir $INSTALL_DIR
 tar xvof /home/ubuntu/straitjacket.tar -C $INSTALL_DIR
 chown -R ubuntu:ubuntu $INSTALL_DIR
@@ -22,5 +25,4 @@ cd /home/ubuntu/straitjacket
 ./straitjacket-setup.sh
 
 docker build -t straitjacket .
-docker run -d --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -p 8081:8081 straitjacket
 docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp --rm straitjacket --test

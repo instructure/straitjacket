@@ -3,4 +3,4 @@
 set -e
 
 git archive -o straitjacket.tar HEAD
-packer build packer.json
+packer build deploy/packer.json

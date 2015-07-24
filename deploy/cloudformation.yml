@@ -29,6 +29,11 @@ Parameters:
     Description: The list of VPC subnets to put the ELB in.
     Type: CommaDelimitedList
 
+  SentryDSN:
+    Description: The DSN for Sentry error reporting.
+    Type: String
+    NoEcho: true
+
 Resources:
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
@@ -40,6 +45,15 @@ Resources:
       KeyName:
         Ref: KeyName
       InstanceType: m3.medium
+      UserData:
+        "Fn::Base64": |
+          #cloud-config
+          write_files:
+          - path: /etc/straitjacket.env
+            content: |
+              SENTRY_DSN=%{Ref: SentryDSN}
+          runcmd:
+          - docker run -d --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -p 8081:8081 --env-file /etc/straitjacket.env --name straitjacket straitjacket
 
   ASG:
     Type: AWS::AutoScaling::AutoScalingGroup
