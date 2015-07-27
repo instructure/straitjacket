@@ -1,7 +1,7 @@
 FROM buildpack-deps:jessie
 
 RUN         apt-get update && \
-            apt-get install -y ocaml-nox opam && \
+            apt-get install -y ocaml-nox opam camlp4-extra && \
             apt-get clean && \
             rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
