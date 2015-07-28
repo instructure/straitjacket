@@ -13,25 +13,51 @@ file_extensions:
 tests:
   simple:
     source: |
-      (display "hi from scheme")
-        (newline)
-    stdout: "\\Ahi from scheme\\n\\z"
+      #lang racket
+
+      (define (read-lines)
+        (let ([line (read-line)])
+          (if (eof-object? line)
+            '()
+            (cons line (read-lines)))))
+
+      (define (process line)
+        (* 2 (string->number line)))
+
+      (define (print-lines lines)
+        (if (not (null? lines))
+          (begin
+            (display (first lines))
+            (newline)
+            (print-lines (rest lines)))
+          (values)))
+
+      (let* ([lines (read-lines)]
+             [processed (map process lines)])
+        (print-lines processed))
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
   apparmor:
     source: |
+      #lang racket
+
       (with-input-from-file "/etc/passwd" (lambda ()
         (define loop (lambda (token)
           (if (not (eof-object? token))
-              (begin (display token) (newline) (loop (read))))))
+              (begin (display token) (newline) (loop (read))) token)))
         (loop (read))))
     stdout: "\\A\\z"
     stderr: "\\Awith-input-from-file: cannot open input file\\n  path: /etc/passwd\\n  system error: Permission denied; errno=13\\n"
     exitstatus: 1
 
   rlimit:
-    source: (begin (display (make-string 1073741824)) (newline))
+    source: |
+      #lang racket
+
+      (begin (display (make-string 1073741824)) (newline))
     stdout: "\\A\\z"
     stderr: out of memory
     exitstatus: 139

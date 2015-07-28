@@ -11,4 +11,4 @@ USER docker
 VOLUME /src
 WORKDIR /src
 
-ENTRYPOINT ["plt-r5rs"]
+ENTRYPOINT ["racket"]
