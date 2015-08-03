@@ -1,8 +1,14 @@
 package handlers
 
 import (
+	"html/template"
 	"net/http"
+	"straitjacket/engine"
 )
+
+type options struct {
+	Languages []*engine.Language
+}
 
 const WELCOME_HTML = `
 <html>
@@ -20,9 +26,9 @@ const WELCOME_HTML = `
 						<dt>language:</dt>
 						<dd>
 								<select name="language">
-										<option value="javascript">JavaScript</option>
-										<option value="c#">C#</option>
-										<option value="ruby">Ruby</option>
+									{{range .Languages}}
+											<option value="{{.Name}}">{{.VisibleName}}</option>
+									{{end}}
 								</select>
 						</dd>
 				</dl>
@@ -33,8 +39,15 @@ const WELCOME_HTML = `
 `
 
 func (ctx *Context) IndexHandler(res http.ResponseWriter, req *http.Request) {
+	opts := &options{
+		Languages: ctx.Engine.Languages(),
+	}
+	tmpl, err := template.New("index").Parse(WELCOME_HTML)
+	if err != nil {
+		panic(err)
+	}
 	res.Header().Set("Content-Type", "text/html")
-	_, err := res.Write([]byte(WELCOME_HTML))
+	err = tmpl.Execute(res, opts)
 	if err != nil {
 		panic(err)
 	}
