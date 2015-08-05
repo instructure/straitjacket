@@ -41,7 +41,7 @@ Installation
 Development
 -----------
 
-There is a Vagrantfile provided for devloping Straitjacket. Run `vagrant up` to
+There is a Vagrantfile provided for developing Straitjacket. Run `vagrant up` to
 build the image.
 
 To run straitjacket locally for development, ssh into the VM with `vagrant ssh` and run:

@@ -14,9 +14,23 @@ file_extensions:
 tests:
   simple:
     source: |
-      PRINT *, "yay fortran"
+      INTEGER :: num
+      INTEGER :: ios
+      
+      ! Start the read block
+      DO
+        READ(*,*, END=999, IOSTAT=ios) num
+        IF (ios == 0) THEN
+          WRITE(*, '(I0)') num*2
+        END IF
+      END DO
+      
+      999 CONTINUE
+        STOP
+      
       END
-    stdout: "\\A yay fortran\n\\z"
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
