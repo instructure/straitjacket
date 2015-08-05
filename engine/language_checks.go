@@ -26,16 +26,16 @@ func (lang *Language) RunChecks() (err error) {
 	return
 }
 
-type check struct {
+type Check struct {
 	Source, Stdin, Stdout, Stderr string
 	ExitStatus                    int
 }
 
-type checks struct {
-	Simple, Apparmor, Rlimit check
+type Checks struct {
+	Simple, Apparmor, Rlimit Check
 }
 
-func (lang *Language) runCheck(testName string, check *check) error {
+func (lang *Language) runCheck(testName string, check *Check) error {
 	result, err := lang.Run(&RunOptions{
 		Source:  check.Source,
 		Stdin:   check.Stdin,

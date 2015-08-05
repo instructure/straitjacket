@@ -19,7 +19,7 @@ type Language struct {
 	compileStep     bool
 	ApparmorProfile string   `yaml:"apparmor_profile"`
 	CompilerProfile string   `yaml:"compiler_profile"`
-	Checks          checks   `yaml:"tests"`
+	Checks          Checks   `yaml:"tests"`
 	FileExtensions  []string `yaml:"file_extensions"`
 }
 

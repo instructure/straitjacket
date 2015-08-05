@@ -10,9 +10,10 @@ type language struct {
 	Name        string `json:"name"`
 	VisibleName string `json:"visible_name"`
 	Version     string `json:"version"`
+	Template    string `json:"template"`
 }
 
-type appInfo struct {
+var infoResponse struct {
 	Languages  []*language       `json:"languages"`
 	Extensions map[string]string `json:"extensions"`
 }
@@ -20,16 +21,11 @@ type appInfo struct {
 func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 
-	if ctx.extensionsMap == nil {
-		ctx.extensionsMap = makeExtensionsMap(ctx.Engine.Languages())
+	if infoResponse.Languages == nil {
+		makeInfoResponse(ctx.Engine.Languages())
 	}
 
-	options := appInfo{
-		Languages:  langList(ctx.Engine.Languages()),
-		Extensions: ctx.extensionsMap,
-	}
-
-	json, err := json.Marshal(options)
+	json, err := json.Marshal(infoResponse)
 	if err != nil {
 		panic(err)
 	}
@@ -40,9 +36,20 @@ func (ctx *Context) InfoHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func makeInfoResponse(languages []*engine.Language) {
+	infoResponse.Languages = langList(languages)
+	infoResponse.Extensions = makeExtensionsMap(languages)
+}
+
 func langList(languages []*engine.Language) (langList []*language) {
 	for _, lang := range languages {
-		langList = append(langList, &language{Name: lang.Name, VisibleName: lang.VisibleName, Version: lang.Version})
+		info := &language{
+			Name:        lang.Name,
+			VisibleName: lang.VisibleName,
+			Version:     lang.Version,
+			Template:    lang.Checks.Simple.Source,
+		}
+		langList = append(langList, info)
 	}
 	return
 }

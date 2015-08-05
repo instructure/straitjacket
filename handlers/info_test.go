@@ -43,8 +43,8 @@ func TestInfoResponse(t *testing.T) {
 
 	expected := `{
 	  "languages": [
-			{ "name": "d", "visible_name": "D (GDC)", "version": "2.5.5.9" },
-		  { "name": "ruby", "visible_name": "Ruby 2.2", "version": "2.2" }
+			{ "name": "d", "visible_name": "D (GDC)", "version": "2.5.5.9", "template": "d template" },
+		  { "name": "ruby", "visible_name": "Ruby 2.2", "version": "2.2", "template": "ruby template" }
 		],
 		"extensions": {
 		  "rb": "ruby",

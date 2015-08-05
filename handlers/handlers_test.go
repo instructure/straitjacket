@@ -22,6 +22,6 @@ func assertJSONResponse(t *testing.T, expectedResponse string, w *httptest.Respo
 }
 
 var testLangs = []*engine.Language{
-	{Name: "d", VisibleName: "D (GDC)", Version: "2.5.5.9", FileExtensions: []string{"d", "dd"}},
-	{Name: "ruby", VisibleName: "Ruby 2.2", Version: "2.2", FileExtensions: []string{"rb"}},
+	{Name: "d", VisibleName: "D (GDC)", Version: "2.5.5.9", FileExtensions: []string{"d", "dd"}, Checks: engine.Checks{Simple: engine.Check{Source: "d template"}}},
+	{Name: "ruby", VisibleName: "Ruby 2.2", Version: "2.2", FileExtensions: []string{"rb"}, Checks: engine.Checks{Simple: engine.Check{Source: "ruby template"}}},
 }
