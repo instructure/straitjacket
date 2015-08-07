@@ -88,10 +88,11 @@ func (exe *execution) run(opts *RunOptions) (result *ExecutionResult, err error)
 func (exe *execution) createContainer() (err error) {
 	exe.container, err = exe.client.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
-			Image:     exe.dockerImage,
-			Cmd:       exe.command,
-			OpenStdin: true,
-			StdinOnce: true,
+			Image:           exe.dockerImage,
+			Cmd:             exe.command,
+			OpenStdin:       true,
+			StdinOnce:       true,
+			NetworkDisabled: true,
 		},
 	})
 
