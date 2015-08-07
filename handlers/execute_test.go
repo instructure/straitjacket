@@ -181,5 +181,25 @@ func TestExecuteResponse(t *testing.T) {
 		}
 	}`
 
-	assertJSONResponse(t, expected, w)
+	assertJSONResponse(t, 400, expected, w)
+}
+
+func TestTooLargeBody(t *testing.T) {
+	req, _ := http.NewRequest("POST", "/execute", nil)
+	req.PostForm = make(map[string][]string)
+	req.PostForm.Set("language", "c#")
+	req.PostForm.Set("source", "way too long")
+	w := httptest.NewRecorder()
+	ctx := NewContext(nil)
+	ctx.MaxSourceSize = 4
+	ctx.ExecuteHandler(w, req)
+
+	expected := `{
+	  "success": false,
+		"error": "request_size_error",
+		"compilation": null,
+		"runtime": null
+	}`
+
+	assertJSONResponse(t, 413, expected, w)
 }

@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func assertJSONResponse(t *testing.T, expectedResponse string, w *httptest.ResponseRecorder) {
-	assert.Equal(t, 200, w.Code)
+func assertJSONResponse(t *testing.T, expectedCode int, expectedResponse string, w *httptest.ResponseRecorder) {
+	assert.Equal(t, expectedCode, w.Code)
 	assert.Equal(t, "application/json", w.Header().Get("content-type"))
 
 	var expected, actual interface{}

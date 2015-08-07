@@ -30,6 +30,11 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	stdin := req.FormValue("stdin")
 	timelimit := req.FormValue("timelimit")
 
+	if len(source) > ctx.MaxSourceSize || len(stdin) > ctx.MaxStdinSize {
+		errorResponse(413, "request_size_error", res)
+		return
+	}
+
 	ctx.logger(req).WithFields(logrus.Fields{
 		"language":  languageName,
 		"source":    source,
@@ -51,12 +56,30 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	json, err := json.Marshal(buildResult(runResult))
+	response := buildResult(runResult)
+	code := 200
+	if !response.Success {
+		code = 400
+	}
+	sendResponse(code, response, res)
+}
+
+func errorResponse(code int, message string, res http.ResponseWriter) {
+	response := &executionResult{
+		Success: false,
+		Error:   &message,
+	}
+	sendResponse(code, response, res)
+}
+
+func sendResponse(code int, response *executionResult, res http.ResponseWriter) {
+	json, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
 	}
 
 	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(code)
 	_, err = res.Write(json)
 	if err != nil {
 		panic(err)

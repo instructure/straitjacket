@@ -53,5 +53,5 @@ func TestInfoResponse(t *testing.T) {
 		}
 	}`
 
-	assertJSONResponse(t, expected, w)
+	assertJSONResponse(t, 200, expected, w)
 }

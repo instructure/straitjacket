@@ -22,6 +22,9 @@ type Context struct {
 	Engine        Engine
 	extensionsMap map[string]string
 	log           *logrus.Logger
+	MaxSourceSize int
+	MaxStdinSize  int
+	MaxStdoutSize int
 }
 
 // NewContext returns a new HTTP handler context that will use the provided
@@ -31,8 +34,11 @@ func NewContext(engine Engine) *Context {
 	log.Level = logrus.InfoLevel
 	log.Formatter = &logrus.JSONFormatter{}
 	return &Context{
-		Engine: engine,
-		log:    log,
+		Engine:        engine,
+		log:           log,
+		MaxSourceSize: 64 * 1024,
+		MaxStdinSize:  64 * 1024,
+		MaxStdoutSize: 64 * 1024,
 	}
 }
 
@@ -51,6 +57,9 @@ func (ctx *Context) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http
 				Errorf("panic: %v\n", err)
 		}
 	}()
+
+	// 1024 fudge value is for the other input params like language
+	r.Body = http.MaxBytesReader(rw, r.Body, (int64)(ctx.MaxSourceSize+ctx.MaxStdinSize+1024))
 
 	next(rw, r)
 }
