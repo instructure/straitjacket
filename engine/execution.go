@@ -65,7 +65,7 @@ func (exe *execution) run(opts *RunOptions) (result *ExecutionResult, err error)
 
 	if err == nil {
 		startTime := time.Now()
-		runResult := exe.attachAndRun(opts.Stdin)
+		runResult := exe.attachAndRun(opts.Stdin, opts.MaxOutputSize)
 		select {
 		case err = <-runResult:
 			// pass
@@ -80,6 +80,11 @@ func (exe *execution) run(opts *RunOptions) (result *ExecutionResult, err error)
 		result.ExitCode = -9
 	} else if result.ExitCode != 0 {
 		result.ErrorString = fmt.Sprintf("%s_error", exe.step)
+	} else if _, ok := err.(*OutputTooLarge); ok {
+		// treat too-large output as a soft error, still returning a response
+		err = nil
+		result.ExitCode = -10
+		result.ErrorString = fmt.Sprintf("%s_output_size_error", exe.step)
 	}
 
 	return
@@ -99,7 +104,7 @@ func (exe *execution) createContainer() (err error) {
 	return
 }
 
-func (exe *execution) attachAndRun(stdin string) chan error {
+func (exe *execution) attachAndRun(stdin string, maxOutput int) chan error {
 	sentinel := make(chan struct{})
 	runResult := make(chan error)
 	attachResult := make(chan error)
@@ -132,8 +137,8 @@ func (exe *execution) attachAndRun(stdin string) chan error {
 		err := exe.client.AttachToContainer(docker.AttachToContainerOptions{
 			Container:    exe.container.ID,
 			InputStream:  stdinReader,
-			OutputStream: &stdout,
-			ErrorStream:  &stderr,
+			OutputStream: NewLimitedWriter(&stdout, maxOutput),
+			ErrorStream:  NewLimitedWriter(&stderr, maxOutput),
 			Stream:       true,
 			Stdin:        true,
 			Stdout:       true,
@@ -141,10 +146,8 @@ func (exe *execution) attachAndRun(stdin string) chan error {
 			Success:      sentinel,
 		})
 
-		if err == nil {
-			exe.result.Stdout = stdout.String()
-			exe.result.Stderr = stderr.String()
-		}
+		exe.result.Stdout = stdout.String()
+		exe.result.Stderr = stderr.String()
 
 		attachResult <- err
 	}()

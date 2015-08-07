@@ -133,9 +133,10 @@ func TestExecuteResponse(t *testing.T) {
 	defer mockCtrl.Finish()
 	fake := NewMockEngine(mockCtrl)
 	fake.EXPECT().Run("c#", &engine.RunOptions{
-		Source:  "source",
-		Stdin:   "stdin",
-		Timeout: 5,
+		Source:        "source",
+		Stdin:         "stdin",
+		Timeout:       5,
+		MaxOutputSize: 64 * 1024,
 	}).Return(&engine.RunResult{
 		CompileStep: &engine.ExecutionResult{
 			ExitCode: 0,

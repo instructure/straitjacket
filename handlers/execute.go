@@ -48,9 +48,10 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	runResult, err := ctx.Engine.Run(languageName, &engine.RunOptions{
-		Source:  source,
-		Stdin:   stdin,
-		Timeout: timeout,
+		Source:        source,
+		Stdin:         stdin,
+		Timeout:       timeout,
+		MaxOutputSize: ctx.MaxOutputSize,
 	})
 	if err != nil {
 		panic(err)

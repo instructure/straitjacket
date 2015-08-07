@@ -34,6 +34,7 @@ type RunResult struct {
 type RunOptions struct {
 	Source, Stdin string
 	Timeout       int64
+	MaxOutputSize int
 }
 
 // Run executes the given source code in a sandboxed environment, providing the

@@ -24,7 +24,7 @@ type Context struct {
 	log           *logrus.Logger
 	MaxSourceSize int
 	MaxStdinSize  int
-	MaxStdoutSize int
+	MaxOutputSize int
 }
 
 // NewContext returns a new HTTP handler context that will use the provided
@@ -38,7 +38,7 @@ func NewContext(engine Engine) *Context {
 		log:           log,
 		MaxSourceSize: 64 * 1024,
 		MaxStdinSize:  64 * 1024,
-		MaxStdoutSize: 64 * 1024,
+		MaxOutputSize: 64 * 1024,
 	}
 }
 
