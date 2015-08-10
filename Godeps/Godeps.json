@@ -4,8 +4,8 @@
 	"Packages": [
 		".",
 		"./handlers",
-		"./errors",
-		"./engine"
+		"./engine",
+		"./errorlog"
 	],
 	"Deps": [
 		{
@@ -20,7 +20,7 @@
 		},
 		{
 			"ImportPath": "github.com/fsouza/go-dockerclient",
-			"Rev": "69eb698fe078e24f52c14cc2f7ba6027ddebfd31"
+			"Rev": "4190b081d89764179cc1220c5200f67f05d4ea09"
 		},
 		{
 			"ImportPath": "github.com/getsentry/raven-go",
