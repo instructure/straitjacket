@@ -6,4 +6,4 @@ USER docker
 VOLUME /src
 WORKDIR /src
 
-ENTRYPOINT ["node"]
+ENTRYPOINT ["node", "--harmony"]

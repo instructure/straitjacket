@@ -1,5 +1,5 @@
 name: javascript
-visible_name: JavaScript (nodejs 0.12)
+visible_name: JavaScript (nodejs 0.12 Harmony)
 version: "0.12"
 apparmor_profile: straitjacket/interpreter/node
 filename: source.js
@@ -14,7 +14,7 @@ file_extensions:
 tests:
   simple:
     source: |
-      readStdin = function(callback) {
+      readStdin = callback => {
         var data = "";
         process.stdin.resume();
         process.stdin.setEncoding('utf8');
@@ -46,7 +46,7 @@ tests:
   apparmor:
     source: |
       var fs = require('fs');
-      fs.readFile('/etc/hosts', function (err, data) {
+      fs.readFile('/etc/hosts', (err, data) => {
         if (err) throw err;
         console.log(data.toString());
       });
