@@ -37,7 +37,7 @@ func NewContext(engine Engine) *Context {
 		Engine:        engine,
 		log:           log,
 		MaxSourceSize: 64 * 1024,
-		MaxStdinSize:  64 * 1024,
+		MaxStdinSize:  512 * 1024,
 		MaxOutputSize: 64 * 1024,
 	}
 }
