@@ -10,6 +10,32 @@ file_extensions:
   - c
 
 tests:
+  template:
+    source: |
+      #include <stdio.h>
+      #include <stdlib.h>
+
+      #define MAX_LINE_LENGTH 4096
+
+      char *process(char *line) {
+        // Process each line of input here
+        return line;
+      }
+
+      int main() {
+        char line[MAX_LINE_LENGTH];
+
+        while(fgets(line, MAX_LINE_LENGTH, stdin)) {
+          printf("%s", process(line));
+        }
+
+        return 0;
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       #include <stdio.h>

@@ -47,7 +47,7 @@ func langList(languages []*engine.Language) (langList []*language) {
 			Name:        lang.Name,
 			VisibleName: lang.VisibleName,
 			Version:     lang.Version,
-			Template:    lang.Checks.Simple.Source,
+			Template:    lang.Template(),
 		}
 		langList = append(langList, info)
 	}

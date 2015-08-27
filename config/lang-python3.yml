@@ -12,6 +12,24 @@ file_extensions:
   - python
 
 tests:
+  template:
+    source: |
+            import sys
+
+            def process(line):
+              # Process each line of input here
+              return line
+
+            lines = sys.stdin.readlines()
+
+            processed = map(process, lines)
+            for line in processed:
+                print(line.strip())
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr:
+    exitstatus: 0
+
   simple:
     source: |
             import sys

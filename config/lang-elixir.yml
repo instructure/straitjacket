@@ -10,6 +10,25 @@ file_extensions:
   - exs
 
 tests:
+  template:
+    source: |
+      defmodule Solution do
+        def process(line) do
+          # Process each line of input here
+          line
+        end
+      end
+
+      lines = IO.read(:all) |> String.split("\n", trim: true)
+      processed = lines
+        |> Enum.map(&Solution.process/1)
+
+      Enum.each(processed, &IO.puts/1)
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       lines = IO.read(:all) |> String.split("\n", trim: true)

@@ -10,6 +10,38 @@ file_extensions:
   - rs
 
 tests:
+  template:
+    source: |
+      use std::io;
+      use std::io::prelude::*;
+
+      fn process(line : String) -> String {
+        // Process each line of input here
+        return line;
+      }
+
+      fn main() {
+        let stdin = io::stdin();
+        let mut lines = vec![];
+        let mut processed = vec![];
+
+        for line in stdin.lock().lines() {
+          lines.push(line.unwrap());
+        }
+
+        for line in lines {
+          processed.push(process(line));
+        }
+
+        for line in processed {
+          println!("{}", line);
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       use std::io;

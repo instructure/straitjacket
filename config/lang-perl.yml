@@ -11,6 +11,18 @@ file_extensions:
   - perl
 
 tests:
+  template:
+    source: |
+      my @arr = <>;
+      foreach (@arr) {
+        chomp;
+        print ($_  . "\n");
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       my @arr = <>;

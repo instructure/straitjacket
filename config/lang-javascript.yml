@@ -12,6 +12,37 @@ file_extensions:
   - javascript
 
 tests:
+  template:
+    source: |
+      processLine = function(line) {
+        // Process each line of input here
+        return line;
+      };
+
+      readStdin = callback => {
+        var data = "";
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', function(chunk) {
+          return data += chunk.toString();
+        });
+        return process.stdin.on('end', function() {
+          var lines = data.split(/\n/);
+          lines.pop(); // ignore final newline
+          return callback(lines);
+        });
+      };
+
+      readStdin(function(lines) {
+        for (var i in lines) {
+          console.log(processLine(lines[i]));
+        }
+      });
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       readStdin = callback => {

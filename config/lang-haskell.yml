@@ -11,6 +11,22 @@ file_extensions:
   - haskell
 
 tests:
+  template:
+    source: |
+      import Control.Monad
+      main = do
+        contents <- getContents
+        let inputLines = lines contents
+        mapM_ (putStrLn . processLine) inputLines
+
+      processLine :: String -> String
+      -- Process each line of input here
+      processLine line = line
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       import Control.Monad

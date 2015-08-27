@@ -9,6 +9,28 @@ file_extensions:
   - erl
 
 tests:
+  template:
+    source: |
+      # escript always ignores the first line, so it's important to have something there that isn't code.
+
+      read_input() ->
+        case io:get_line("") of
+          eof -> [];
+          Line -> [string:strip(Line, right, $\n)] ++ read_input()
+        end.
+
+      main(_) ->
+        Lines = read_input(),
+        lists:foreach(fun(Line) -> io:fwrite("~s~n", [process(Line)]) end, Lines).
+
+      process(Line) ->
+        % Process each line of input here
+        Line.
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       # escript always ignores the first line, so it's important to have something there that isn't code.

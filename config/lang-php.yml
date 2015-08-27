@@ -10,6 +10,29 @@ file_extensions:
   - php5
 
 tests:
+  template:
+    source: |
+      <?php
+
+      while (FALSE !== ($line = fgets(STDIN))) {
+        $lines[] = $line;
+      }
+
+      foreach ($lines as $line) {
+        // Process each line of input here
+        $processed[] = chop($line);
+      }
+
+      foreach ($processed as $line) {
+        echo "$line\n";
+      }
+
+      ?>
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       <?php

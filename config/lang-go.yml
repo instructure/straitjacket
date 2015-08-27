@@ -10,6 +10,35 @@ file_extensions:
   - go
 
 tests:
+  template:
+    source: |
+      package main
+      import (
+        "bufio"
+        "fmt"
+        "os"
+      )
+      func main() {
+        var lines []string
+        scanner := bufio.NewScanner(os.Stdin)
+        for scanner.Scan() {
+          lines = append(lines, scanner.Text())
+        }
+
+        for _, line := range lines {
+          fmt.Println(process(line))
+        }
+      }
+
+      func process(line string) string {
+        // Process each line of input here
+        return line
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       package main

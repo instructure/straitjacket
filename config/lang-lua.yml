@@ -9,6 +9,29 @@ file_extensions:
   - lua
 
 tests:
+  template:
+    source: |
+      local lines = {}
+
+      local function processLine(line)
+        -- Process each line of input here
+        return line
+      end
+
+      -- read the lines in table 'lines'
+      for line in io.lines() do
+        table.insert(lines, line)
+      end
+
+      -- write all the lines
+      for i, l in ipairs(lines) do
+        io.write(processLine(l), "\n")
+      end
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       local lines = {}

@@ -9,6 +9,30 @@ file_extensions:
   - coffee
 
 tests:
+  template:
+    source: |
+      readStdin = (callback) ->
+        data = ""
+        process.stdin.resume()
+        process.stdin.setEncoding 'utf8'
+        process.stdin.on 'data', (chunk) -> data += chunk.toString()
+
+        return process.stdin.on 'end', () ->
+          lines = data.split(/\n/)
+          lines.pop()
+          callback(lines)
+
+      processLine = (line) ->
+        # Process each line of input here
+        return line
+
+      readStdin (lines) ->
+        console.log(processLine line) for line in lines
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       readStdin = (callback) ->

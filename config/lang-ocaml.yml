@@ -11,6 +11,22 @@ file_extensions:
   - ocaml
 
 tests:
+  template:
+    source: |
+      open Core.Std;;
+      let process_line = fun (line) ->
+        (* Process each line of input here *)
+        line
+      ;;
+
+      let lines = In_channel.input_lines In_channel.stdin in
+      let processedLines = List.map ~f:process_line lines in
+      List.iter ~f:(Printf.printf "%s\n") processedLines
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       open Core.Std;;

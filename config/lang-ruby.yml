@@ -12,6 +12,21 @@ file_extensions:
   - ruby
 
 tests:
+  template:
+    source: |
+      def process(line)
+        # Process each line of input here
+        return line
+      end
+
+      $stdin.each_line do |line|
+        puts process(line)
+      end
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       def process(line)

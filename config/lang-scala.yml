@@ -7,6 +7,32 @@ filename: Main.scala
 docker_image: straitjacket-scala
 
 tests:
+  template:
+    source: |
+      object Main {
+        def main(args: Array[String]) {
+          var lines: List[String] = Nil
+
+          val input = io.Source.stdin
+          for(line <- input.getLines) {
+            lines = List(line).:::(lines)
+          }
+
+          for(line <- lines) {
+            println(process(line))
+          }
+        }
+
+        def process(line: String):String = {
+          // Process each line of input here
+          return(line)
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       object Main {
@@ -22,7 +48,7 @@ tests:
             println(process(line))
           }
         }
-        
+
         def process(line: String):String = {
           return((line.toInt * 2).toString)
         }

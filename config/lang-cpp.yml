@@ -12,6 +12,31 @@ file_extensions:
   - c++
 
 tests:
+  template:
+    source: |
+      #include <iostream>
+      #include <string>
+      #include <vector>
+
+      using namespace std;
+
+      string process(string line) {
+        // Process each line of input here
+        return line;
+      }
+
+      int main ()
+      {
+        string line;
+        while( getline(cin, line) ) {
+          cout << process(line) << endl;
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       #include <iostream>

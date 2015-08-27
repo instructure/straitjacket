@@ -11,7 +11,12 @@ import (
 // stdin/stdout work as expected, and basic verification that the AppArmor
 // profile is in effect.
 func (lang *Language) RunChecks() (err error) {
-	err = lang.runCheck("simple", &lang.Checks.Simple)
+	if lang.Checks.Template.Source != "" {
+		err = lang.runCheck("template", &lang.Checks.Template)
+	}
+	if err == nil {
+		err = lang.runCheck("simple", &lang.Checks.Simple)
+	}
 	if lang.ApparmorProfile == "" {
 		// skip the apparmor tests when it's been disabled
 		return
@@ -32,7 +37,15 @@ type Check struct {
 }
 
 type Checks struct {
-	Simple, Apparmor, Rlimit Check
+	Template, Simple, Apparmor, Rlimit Check
+}
+
+func (lang *Language) Template() string {
+	if lang.Checks.Template.Source != "" {
+		return lang.Checks.Template.Source
+	} else {
+		return lang.Checks.Simple.Source
+	}
 }
 
 func (lang *Language) runCheck(testName string, check *Check) error {

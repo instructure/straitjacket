@@ -11,6 +11,27 @@ file_extensions:
   - c#
 
 tests:
+  template:
+    source: |
+      public class Template {
+        public static void Main() {
+          string inputLine;
+
+          while ((inputLine = System.Console.ReadLine()) != null) {
+            System.Console.WriteLine(Process(inputLine));
+          }
+        }
+
+        private static string Process(string line) {
+          // Process each line of input here
+          return line;
+        }
+      }
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       public class Template {
