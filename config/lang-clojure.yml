@@ -1,0 +1,50 @@
+name: clojure
+visible_name: Clojure
+version: "1.7.0"
+apparmor_profile: straitjacket/interpreter/clojure
+filename: source.clj
+docker_image: straitjacket-clojure
+
+file_extensions:
+  - clj
+
+tests:
+  template:
+    source: |
+      (defn process
+        [lines]
+        ;; Process lines here
+        (println lines))
+
+      (doseq [lines (line-seq (java.io.BufferedReader. *in*))]
+        (process lines))
+    stdin:  "1\n2\n3\n"
+    stdout: "1\n2\n3\n"
+    stderr:
+    exitstatus: 0
+
+  simple:
+    source: |
+      (defn process [lines]
+        (println lines))
+
+      (doseq [lines (line-seq (java.io.BufferedReader. *in*))]
+        (process lines))
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n"
+    stderr:
+    exitstatus: 0
+
+  rlimit:
+    source: |
+      (make-array Integer/TYPE 1073741824)
+    stdout: "\\A\\z"
+    stderr: "OutOfMemoryError"
+    exitstatus: 1
+
+  apparmor:
+    source: |
+      (slurp "/etc/hosts")
+    stdout: "\\A\\z"
+    stderr: "Permission denied"
+    exitstatus: 1

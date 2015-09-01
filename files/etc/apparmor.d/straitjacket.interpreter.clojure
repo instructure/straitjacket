@@ -1,0 +1,10 @@
+#include <tunables/global>
+
+profile straitjacket/interpreter/clojure {
+  #include <abstractions/base>
+  #include <abstractions/straitjacket-base>
+  #include <abstractions/straitjacket-jvm>
+  #include <abstractions/straitjacket-compiler>
+
+  /clojure/clojure-1.7.0-slim.jar rix,
+}
