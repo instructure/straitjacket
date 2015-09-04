@@ -9,13 +9,12 @@ profile straitjacket/compiler/ghc {
   /tmp/** rw,
 
   /bin/dash rix,
-  /usr/bin/ghc rix,
+  /usr/local/bin/ghc rix,
 
-  /usr/lib/ghc{-*,}/**.o mr,
-  /usr/lib/ghc{-*,}/bin/ghc-* rix,
-  /usr/lib/ghc{-*,}/lib/ghc rix,
-  /usr/lib/ghc{-*,}/lib/runghc rix,
-  /usr/lib/*/gconf/UTF-*.so mr,
-  /var/lib/ghc{-*,}/package.conf.d/package.cache r,
+  /usr/local/haskell/ghc{-*,}/**.o mr,
+  /usr/local/haskell/ghc{-*,}/bin/ghc-* rix,
+  /usr/local/haskell/ghc{-*,}/lib/** rix,
+  /usr/local/haskell/*/gconf/UTF-*.so mr,
+  /var/local/haskell/ghc{-*,}/package.conf.d/package.cache r,
 
 }

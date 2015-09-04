@@ -1,6 +1,6 @@
 name: haskell
 visible_name: Haskell (GHC + Haskell Platform)
-version: "7.6.3"
+version: "7.10.2"
 compiler_profile: straitjacket/compiler/ghc
 apparmor_profile: straitjacket/compiled/ghc
 filename: source.hs
