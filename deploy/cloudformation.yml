@@ -70,8 +70,8 @@ Resources:
         Ref: VpcSubnets
       LaunchConfigurationName:
         Ref: LaunchConfig
-      MinSize: 3
-      MaxSize: 10
+      MinSize: 6
+      MaxSize: 15
       LoadBalancerNames:
         - Ref: ELB
 
