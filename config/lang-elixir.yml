@@ -1,6 +1,6 @@
 name: elixir
-visible_name: Elixir 1.0.5
-version: "1.0.5"
+visible_name: Elixir 1.0
+version: "1.0"
 apparmor_profile: straitjacket/interpreter/erlang
 filename: main.exs
 docker_image: straitjacket-elixir
