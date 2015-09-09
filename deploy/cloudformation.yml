@@ -79,6 +79,8 @@ Resources:
     Description: "The Load Balancer for this ASG"
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
+      ConnectionSettings:
+        IdleTimeout: 120
       Subnets:
         Ref: ElbSubnets
       LoadBalancerName: straitjacket
