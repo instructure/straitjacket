@@ -1,6 +1,6 @@
 name: cpp
-visible_name: C++ (G++)
-version: "11"
+visible_name: C++ (GCC, c++14)
+version: "4.9"
 compiler_profile: straitjacket/compiler/cpp
 apparmor_profile: straitjacket/compiled/c
 filename: source.cpp
@@ -20,7 +20,7 @@ tests:
 
       using namespace std;
 
-      string process(string line) {
+      auto process(string line) {
         // Process each line of input here
         return line;
       }
@@ -31,6 +31,7 @@ tests:
         while( getline(cin, line) ) {
           cout << process(line) << endl;
         }
+        return 0;
       }
     stdin:  "1\n2\n3\n"
     stdout: "\\A1\n2\n3\n\\z"
@@ -56,6 +57,7 @@ tests:
         for (int i = 0; i < lines.size(); i++) {
           cout << (stoi(lines[i]) * 2) << endl;
         }
+        return 0;
       }
     stdin:  "1\n2\n3\n"
     stdout: "\\A2\n4\n6\n\\z"
