@@ -5,3 +5,4 @@ config/cached_versions.conf
 .vagrant
 btrfs-fs.vdi
 deploy/cloudformation.json
+straitjacket.tar
