@@ -9,6 +9,7 @@ RUN useradd -m docker
 USER docker
 
 RUN opam init -y && \
+    opam switch 4.02.3 && \
     opam install -y core
 
 USER root
