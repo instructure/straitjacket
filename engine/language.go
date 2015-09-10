@@ -56,7 +56,9 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 		if err != nil {
 			return nil, err
 		}
-		result.CompileStep, err = exe.run(opts)
+		compileOpts := *opts
+		compileOpts.Stdin = ""
+		result.CompileStep, err = exe.run(&compileOpts)
 		if err != nil || result.CompileStep.ExitCode != 0 {
 			return result, err
 		}
