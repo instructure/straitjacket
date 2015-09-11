@@ -3,7 +3,7 @@
 set -e
 
 if [ "$1" == "--build" ]; then
-  ghc -o /src/main $2
+  ghc -O -o /src/main $2
 else
   /src/main
 fi
