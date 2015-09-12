@@ -3,7 +3,7 @@
     {
       "name": "straitjacket",
       "type": "amazon-ebs",
-      "source_ami": "ami-09ebf639",
+      "source_ami": "ami-e53e22d5",
       "ami_name": "straitjacket-{{isotime | clean_ami_name}}",
       "ami_virtualization_type": "hvm",
       "tags": {
