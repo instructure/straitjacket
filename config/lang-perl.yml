@@ -1,7 +1,7 @@
 name: perl
 visible_name: Perl 5.20
 version: "5.20.2"
-apparmor_profile: straitjacket/interpreter/default
+apparmor_profile: straitjacket/interpreter/perl
 filename: source.pl
 docker_image: straitjacket-perl
 
@@ -25,6 +25,9 @@ tests:
 
   simple:
     source: |
+      use strict;
+      use Archive::Tar;
+
       my @arr = <>;
       foreach (@arr) {
         print (($_ * 2) . "\n");
