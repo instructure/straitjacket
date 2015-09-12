@@ -6,6 +6,8 @@ profile straitjacket/compiler/ghc {
   #include <abstractions/straitjacket-compiler>
   #include <abstractions/straitjacket-gcc>
 
+  set rlimit sigpending <= 100,
+
   /tmp/** rw,
 
   /bin/dash rix,
