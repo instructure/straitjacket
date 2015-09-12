@@ -23,6 +23,12 @@ if ! mount | grep -q /var/lib/docker; then
   systemctl enable docker
 fi
 
+if ! mount | grep -q ' /tmp'; then
+  mkfs.ext4 /dev/xvdc
+  mount /dev/xvdc /tmp
+  echo /dev/xvdc /tmp btrfs defaults 0 0 >> /etc/fstab
+fi
+
 cd $INSTALL_DIR
 
 ./straitjacket-setup.sh
