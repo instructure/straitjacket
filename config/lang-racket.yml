@@ -1,0 +1,63 @@
+name: racket
+visible_name: Racket
+version: "6.1"
+apparmor_profile: straitjacket/interpreter/racket
+filename: source.rkt
+docker_image: straitjacket-racket
+
+file_extensions:
+  - rkt
+  - scrbl
+  - ss
+
+tests:
+  template:
+    source: |
+      #lang racket/base
+
+      (define (process line)
+        ;;; Process input lines here
+        line)
+      
+      (for ([line (in-producer read-line eof)])
+        (displayln (process line)))
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  simple:
+    source: |
+      #lang racket/base
+
+      (define (process line)
+        (* 2 (string->number line)))
+
+      (for ([line (in-producer read-line eof)])
+        (displayln (process line)))  
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A2\n4\n6\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
+  apparmor:
+    source: |
+      #lang racket/base
+
+      (with-input-from-file "/etc/passwd" (lambda ()
+        (define loop (lambda (token)
+          (if (not (eof-object? token))
+              (begin (display token) (newline) (loop (read))) token)))
+        (loop (read))))
+    stdout: "\\A\\z"
+    stderr: "\\Awith-input-from-file: cannot open input file\\n  path: /etc/passwd\\n  system error: Permission denied; errno=13\\n"
+    exitstatus: 1
+
+  rlimit:
+    source: |
+      #lang racket/base
+
+      (begin (display (make-string 1073741824)) (newline))
+    stdout: "\\A\\z"
+    stderr: out of memory
+    exitstatus: 139
