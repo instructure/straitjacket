@@ -9,6 +9,36 @@ file_extensions:
   - scm
 
 tests:
+  template:
+    source: |
+      (use-modules (ice-9 rdelim))
+      
+      (define (read-lines)
+        (let ((line (read-line)))
+          (if (eof-object? line)
+            '()
+            (cons line (read-lines)))))
+
+      (define (process line)
+        ;;; Process each line of input here
+        line)
+
+      (define (print-lines lines)
+        (if (not (null? lines))
+          (begin
+            (display (first lines))
+            (newline)
+            (print-lines (rest lines)))
+          (values)))
+
+      (let* ((lines (read-lines))
+             (processed (map process lines)))
+        (print-lines processed))
+    stdin:  "1\n2\n3\n"
+    stdout: "\\A1\n2\n3\n\\z"
+    stderr: "\\A\\z"
+    exitstatus: 0
+
   simple:
     source: |
       (begin (display "hi from guile") (newline))

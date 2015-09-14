@@ -15,27 +15,12 @@ tests:
     source: |
       #lang racket/base
 
-      (define (read-lines)
-        (let ([line (read-line)])
-          (if (eof-object? line)
-            '()
-            (cons line (read-lines)))))
-
       (define (process line)
-        ;;; Process each line of input here
+        ;;; Process input lines here
         line)
-
-      (define (print-lines lines)
-        (if (not (null? lines))
-          (begin
-            (display (first lines))
-            (newline)
-            (print-lines (rest lines)))
-          (values)))
-
-      (let* ([lines (read-lines)]
-             [processed (map process lines)])
-        (print-lines processed))
+      
+      (for ([line (in-producer read-line eof)])
+        (displayln (process line)))
     stdin:  "1\n2\n3\n"
     stdout: "\\A1\n2\n3\n\\z"
     stderr: "\\A\\z"
@@ -45,26 +30,11 @@ tests:
     source: |
       #lang racket/base
 
-      (define (read-lines)
-        (let ([line (read-line)])
-          (if (eof-object? line)
-            '()
-            (cons line (read-lines)))))
-
       (define (process line)
         (* 2 (string->number line)))
 
-      (define (print-lines lines)
-        (if (not (null? lines))
-          (begin
-            (display (first lines))
-            (newline)
-            (print-lines (rest lines)))
-          (values)))
-
-      (let* ([lines (read-lines)]
-             [processed (map process lines)])
-        (print-lines processed))
+      (for ([line (in-producer read-line eof)])
+        (displayln (process line)))  
     stdin:  "1\n2\n3\n"
     stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"
