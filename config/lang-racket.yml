@@ -1,6 +1,6 @@
-name: scheme
-visible_name: Scheme
-version: "R5RS"
+name: racket
+visible_name: Racket
+version: "6.1"
 apparmor_profile: straitjacket/interpreter/racket
 filename: source.rkt
 docker_image: straitjacket-racket
