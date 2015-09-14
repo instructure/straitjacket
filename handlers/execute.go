@@ -29,6 +29,7 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	source := req.FormValue("source")
 	stdin := req.FormValue("stdin")
 	timelimit := req.FormValue("timelimit")
+	compileTimelimit := req.FormValue("compile_timelimit")
 
 	if len(source) > ctx.MaxSourceSize || len(stdin) > ctx.MaxStdinSize {
 		errorResponse(413, "request_size_error", res)
@@ -36,22 +37,29 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	ctx.logger(req).WithFields(logrus.Fields{
-		"language":  languageName,
-		"source":    source,
-		"stdin":     stdin,
-		"timelimit": timelimit,
+		"language":          languageName,
+		"source":            source,
+		"stdin":             stdin,
+		"timelimit":         timelimit,
+		"compile_timelimit": compileTimelimit,
 	}).Info("executing code")
 
-	timeout, err := parseTimelimit(timelimit)
+	timeout, err := parseTimelimit(timelimit, 60)
+	if err != nil {
+		panic(err)
+	}
+
+	compileTimeout, err := parseTimelimit(compileTimelimit, timeout)
 	if err != nil {
 		panic(err)
 	}
 
 	runResult, err := ctx.Engine.Run(languageName, &engine.RunOptions{
-		Source:        source,
-		Stdin:         stdin,
-		Timeout:       timeout,
-		MaxOutputSize: ctx.MaxOutputSize,
+		Source:         source,
+		Stdin:          stdin,
+		Timeout:        timeout,
+		CompileTimeout: compileTimeout,
+		MaxOutputSize:  ctx.MaxOutputSize,
 	})
 	if err != nil {
 		panic(err)
@@ -87,8 +95,8 @@ func sendResponse(code int, response *executionResult, res http.ResponseWriter) 
 	}
 }
 
-func parseTimelimit(timelimit string) (timeout int64, err error) {
-	timeout = 60
+func parseTimelimit(timelimit string, defaultLimit int64) (timeout int64, err error) {
+	timeout = defaultLimit
 	if timelimit != "" {
 		timeout, err = strconv.ParseInt(timelimit, 10, 64)
 	}

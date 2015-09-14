@@ -27,6 +27,12 @@ type ExecutionResult struct {
 	ErrorString string
 }
 
+type executionOptions struct {
+	Source, Stdin string
+	Timeout       int64
+	MaxOutputSize int
+}
+
 type execution struct {
 	step            string
 	command         []string
@@ -56,7 +62,7 @@ func newExecution(step string, command []string, srcDir, dockerImage, apparmorPr
 }
 
 // Run the execution with the given options.
-func (exe *execution) run(opts *RunOptions) (result *ExecutionResult, err error) {
+func (exe *execution) run(opts *executionOptions) (result *ExecutionResult, err error) {
 	result = exe.result
 	timeout := false
 	defer exe.cleanup()

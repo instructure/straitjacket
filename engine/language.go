@@ -32,9 +32,9 @@ type RunResult struct {
 
 // RunOptions is configuration for a Language Run.
 type RunOptions struct {
-	Source, Stdin string
-	Timeout       int64
-	MaxOutputSize int
+	Source, Stdin           string
+	Timeout, CompileTimeout int64
+	MaxOutputSize           int
 }
 
 // Run executes the given source code in a sandboxed environment, providing the
@@ -56,9 +56,11 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 		if err != nil {
 			return nil, err
 		}
-		compileOpts := *opts
-		compileOpts.Stdin = ""
-		result.CompileStep, err = exe.run(&compileOpts)
+		result.CompileStep, err = exe.run(&executionOptions{
+			Source:        opts.Source,
+			Timeout:       opts.CompileTimeout,
+			MaxOutputSize: opts.MaxOutputSize,
+		})
 		if err != nil || result.CompileStep.ExitCode != 0 {
 			return result, err
 		}
@@ -68,7 +70,12 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	result.RunStep, err = exe.run(opts)
+	result.RunStep, err = exe.run(&executionOptions{
+		Source:        opts.Source,
+		Stdin:         opts.Stdin,
+		Timeout:       opts.Timeout,
+		MaxOutputSize: opts.MaxOutputSize,
+	})
 
 	return result, err
 }

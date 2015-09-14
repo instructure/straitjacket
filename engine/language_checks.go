@@ -50,10 +50,11 @@ func (lang *Language) Template() string {
 
 func (lang *Language) runCheck(testName string, check *Check) error {
 	result, err := lang.Run(&RunOptions{
-		Source:        check.Source,
-		Stdin:         check.Stdin,
-		Timeout:       30,
-		MaxOutputSize: 3500,
+		Source:         check.Source,
+		Stdin:          check.Stdin,
+		Timeout:        30,
+		CompileTimeout: 30,
+		MaxOutputSize:  3500,
 	})
 
 	if err != nil {

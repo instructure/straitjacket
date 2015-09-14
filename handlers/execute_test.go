@@ -22,7 +22,7 @@ var timings = []struct {
 
 func TestParseTimelimit(t *testing.T) {
 	for _, param := range timings {
-		timelimit, err := parseTimelimit(param.value)
+		timelimit, err := parseTimelimit(param.value, 60)
 		if assert.NoError(t, err) {
 			assert.Equal(t, param.expected, timelimit)
 		}
@@ -133,10 +133,11 @@ func TestExecuteResponse(t *testing.T) {
 	defer mockCtrl.Finish()
 	fake := NewMockEngine(mockCtrl)
 	fake.EXPECT().Run("c#", &engine.RunOptions{
-		Source:        "source",
-		Stdin:         "stdin",
-		Timeout:       5,
-		MaxOutputSize: 64 * 1024,
+		Source:         "source",
+		Stdin:          "stdin",
+		Timeout:        5,
+		CompileTimeout: 5,
+		MaxOutputSize:  64 * 1024,
 	}).Return(&engine.RunResult{
 		CompileStep: &engine.ExecutionResult{
 			ExitCode: 0,

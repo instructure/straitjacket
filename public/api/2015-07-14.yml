@@ -46,7 +46,12 @@ paths:
           type: string
         - in: formData
           name: timelimit
-          description: Time limit to apply to each execution step, in seconds. Defaults to 60s.
+          description: Time limit to apply to the run, in seconds. Defaults to 60s.
+          required: false
+          type: number
+        - in: formData
+          name: compile_timelimit
+          description: Time limit to apply to the compile step, in seconds. Defaults to the same value as timelimit.
           required: false
           type: number
       produces:
