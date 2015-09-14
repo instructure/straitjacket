@@ -11,8 +11,8 @@ file_extensions:
 tests:
   simple:
     source: |
-      (begin (display "hi from Scheme") (newline))
-    stdout: "\\Ahi from Scheme\n\\z"
+      (begin (display "hi from guile") (newline))
+    stdout: "\\Ahi from guile\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 
