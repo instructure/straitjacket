@@ -1,18 +1,18 @@
-name: guile
-visible_name: Guile 2.0
+name: scheme
+visible_name: Scheme (Guile 2.0, R5RS+)
 version: "2.0.11"
 apparmor_profile: straitjacket/interpreter/guile
 filename: source.scm
-docker_image: straitjacket-guile
+docker_image: straitjacket-scheme
 
 file_extensions:
-  - guile
+  - scm
 
 tests:
   simple:
     source: |
-      (begin (display "hi from guile") (newline))
-    stdout: "\\Ahi from guile\n\\z"
+      (begin (display "hi from Scheme") (newline))
+    stdout: "\\Ahi from Scheme\n\\z"
     stderr: "\\A\\z"
     exitstatus: 0
 

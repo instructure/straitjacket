@@ -2,18 +2,18 @@ name: scheme
 visible_name: Scheme
 version: "R5RS"
 apparmor_profile: straitjacket/interpreter/racket
-filename: source.scm
-docker_image: straitjacket-scheme
+filename: source.rkt
+docker_image: straitjacket-racket
 
 file_extensions:
   - rkt
-  - scm
-  - scheme
+  - scrbl
+  - ss
 
 tests:
   template:
     source: |
-      #lang racket
+      #lang racket/base
 
       (define (read-lines)
         (let ([line (read-line)])
@@ -43,7 +43,7 @@ tests:
 
   simple:
     source: |
-      #lang racket
+      #lang racket/base
 
       (define (read-lines)
         (let ([line (read-line)])
@@ -72,7 +72,7 @@ tests:
 
   apparmor:
     source: |
-      #lang racket
+      #lang racket/base
 
       (with-input-from-file "/etc/passwd" (lambda ()
         (define loop (lambda (token)
@@ -85,7 +85,7 @@ tests:
 
   rlimit:
     source: |
-      #lang racket
+      #lang racket/base
 
       (begin (display (make-string 1073741824)) (newline))
     stdout: "\\A\\z"
