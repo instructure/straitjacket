@@ -26,9 +26,9 @@ tests:
       (define (print-lines lines)
         (if (not (null? lines))
           (begin
-            (display (first lines))
+            (display (car lines))
             (newline)
-            (print-lines (rest lines)))
+            (print-lines (cdr lines)))
           (values)))
 
       (let* ((lines (read-lines))
