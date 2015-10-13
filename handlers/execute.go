@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"straitjacket/engine"
 	"strconv"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 )
@@ -22,6 +24,10 @@ type executionResult struct {
 	Error       *string        `json:"error"`
 	Compilation *executionStep `json:"compilation"`
 	Runtime     *executionStep `json:"runtime"`
+}
+
+type buffers struct {
+	compileStdout, compileStderr, stdout, stderr bytes.Buffer
 }
 
 func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
@@ -54,9 +60,15 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
+	var buffers buffers
+
 	runResult, err := ctx.Engine.Run(languageName, &engine.RunOptions{
 		Source:         source,
-		Stdin:          stdin,
+		Stdin:          strings.NewReader(stdin),
+		CompileStdout:  &buffers.compileStdout,
+		CompileStderr:  &buffers.compileStderr,
+		Stderr:         &buffers.stderr,
+		Stdout:         &buffers.stdout,
 		Timeout:        timeout,
 		CompileTimeout: compileTimeout,
 		MaxOutputSize:  ctx.MaxOutputSize,
@@ -65,7 +77,7 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	response := buildResult(runResult)
+	response := buildResult(runResult, &buffers)
 	code := 200
 	if !response.Success {
 		code = 400
@@ -103,7 +115,7 @@ func parseTimelimit(timelimit string, defaultLimit int64) (timeout int64, err er
 	return
 }
 
-func buildResult(runResult *engine.RunResult) *executionResult {
+func buildResult(runResult *engine.RunResult, buffers *buffers) *executionResult {
 	result := &executionResult{}
 
 	if runResult.RunStep != nil && runResult.RunStep.ErrorString != "" {
@@ -117,19 +129,19 @@ func buildResult(runResult *engine.RunResult) *executionResult {
 	}
 
 	if runResult.CompileStep != nil {
-		result.Compilation = translateExecutionResult(runResult.CompileStep)
+		result.Compilation = translateExecutionResult(runResult.CompileStep, buffers.compileStdout, buffers.compileStderr)
 	}
 	if runResult.RunStep != nil {
-		result.Runtime = translateExecutionResult(runResult.RunStep)
+		result.Runtime = translateExecutionResult(runResult.RunStep, buffers.stdout, buffers.stderr)
 	}
 
 	return result
 }
 
-func translateExecutionResult(result *engine.ExecutionResult) *executionStep {
+func translateExecutionResult(result *engine.ExecutionResult, stdout, stderr bytes.Buffer) *executionStep {
 	res := &executionStep{
-		Stdout:     result.Stdout,
-		Stderr:     result.Stderr,
+		Stdout:     stdout.String(),
+		Stderr:     stderr.String(),
 		ExitStatus: result.ExitCode,
 		Time:       result.RunTime.Seconds(),
 		Error:      &result.ErrorString,

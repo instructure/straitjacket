@@ -1,9 +1,8 @@
 package engine
 
 import (
-	"bytes"
 	"fmt"
-	"strings"
+	"io"
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
@@ -19,8 +18,6 @@ var (
 type ExecutionResult struct {
 	// The exit status code of the process. 0 is success, anything else is failure.
 	ExitCode int
-	// The output streams.
-	Stdout, Stderr string
 	// How long this step ran.
 	RunTime time.Duration
 	// If an error occured, this error string will be non-empty.
@@ -28,9 +25,11 @@ type ExecutionResult struct {
 }
 
 type executionOptions struct {
-	Source, Stdin string
-	Timeout       int64
-	MaxOutputSize int
+	Source         string
+	Stdin          io.Reader
+	Stdout, Stderr io.Writer
+	Timeout        int64
+	MaxOutputSize  int
 }
 
 type execution struct {
@@ -71,7 +70,7 @@ func (exe *execution) run(opts *executionOptions) (result *ExecutionResult, err 
 
 	if err == nil {
 		startTime := time.Now()
-		runResult := exe.attachAndRun(opts.Stdin, opts.MaxOutputSize)
+		runResult := exe.attachAndRun(opts.Stdin, opts.Stdout, opts.Stderr, opts.MaxOutputSize)
 		select {
 		case err = <-runResult:
 			// pass
@@ -110,7 +109,7 @@ func (exe *execution) createContainer() (err error) {
 	return
 }
 
-func (exe *execution) attachAndRun(stdin string, maxOutput int) chan error {
+func (exe *execution) attachAndRun(stdin io.Reader, stdout, stderr io.Writer, maxOutput int) chan error {
 	sentinel := make(chan struct{})
 	runResult := make(chan error)
 	attachResult := make(chan error)
@@ -138,22 +137,17 @@ func (exe *execution) attachAndRun(stdin string, maxOutput int) chan error {
 
 	// attach goroutine
 	go func() {
-		stdinReader := strings.NewReader(stdin)
-		var stdout, stderr bytes.Buffer
 		err := exe.client.AttachToContainer(docker.AttachToContainerOptions{
 			Container:    exe.container.ID,
-			InputStream:  stdinReader,
-			OutputStream: NewLimitedWriter(&stdout, maxOutput),
-			ErrorStream:  NewLimitedWriter(&stderr, maxOutput),
+			InputStream:  stdin,
+			OutputStream: NewLimitedWriter(stdout, maxOutput),
+			ErrorStream:  NewLimitedWriter(stderr, maxOutput),
 			Stream:       true,
 			Stdin:        true,
 			Stdout:       true,
 			Stderr:       true,
 			Success:      sentinel,
 		})
-
-		exe.result.Stdout = stdout.String()
-		exe.result.Stderr = stderr.String()
 
 		attachResult <- err
 	}()

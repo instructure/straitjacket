@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 
@@ -32,9 +33,12 @@ type RunResult struct {
 
 // RunOptions is configuration for a Language Run.
 type RunOptions struct {
-	Source, Stdin           string
-	Timeout, CompileTimeout int64
-	MaxOutputSize           int
+	Source                       string
+	Stdin                        io.Reader
+	Stdout, Stderr               io.Writer
+	CompileStdout, CompileStderr io.Writer
+	Timeout, CompileTimeout      int64
+	MaxOutputSize                int
 }
 
 // Run executes the given source code in a sandboxed environment, providing the
@@ -60,6 +64,8 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 			Source:        opts.Source,
 			Timeout:       opts.CompileTimeout,
 			MaxOutputSize: opts.MaxOutputSize,
+			Stdout:        opts.CompileStdout,
+			Stderr:        opts.CompileStderr,
 		})
 		if err != nil || result.CompileStep.ExitCode != 0 {
 			return result, err
@@ -73,6 +79,8 @@ func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
 	result.RunStep, err = exe.run(&executionOptions{
 		Source:        opts.Source,
 		Stdin:         opts.Stdin,
+		Stdout:        opts.Stdout,
+		Stderr:        opts.Stderr,
 		Timeout:       opts.Timeout,
 		MaxOutputSize: opts.MaxOutputSize,
 	})

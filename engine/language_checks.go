@@ -1,8 +1,10 @@
 package engine
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -49,9 +51,14 @@ func (lang *Language) Template() string {
 }
 
 func (lang *Language) runCheck(testName string, check *Check) error {
+	var cstdout, cstderr, stdout, stderr bytes.Buffer
 	result, err := lang.Run(&RunOptions{
 		Source:         check.Source,
-		Stdin:          check.Stdin,
+		Stdin:          strings.NewReader(check.Stdin),
+		CompileStdout:  &cstdout,
+		CompileStderr:  &cstderr,
+		Stdout:         &stdout,
+		Stderr:         &stderr,
 		Timeout:        30,
 		CompileTimeout: 30,
 		MaxOutputSize:  3500,
@@ -73,7 +80,7 @@ func (lang *Language) runCheck(testName string, check *Check) error {
 		return fmt.Errorf("Incorrect exit code %s", errorString)
 	}
 
-	match, err := regexp.MatchString(check.Stderr, result.RunStep.Stderr)
+	match, err := regexp.MatchString(check.Stderr, stderr.String())
 	if err != nil {
 		return err
 	}
@@ -81,7 +88,7 @@ func (lang *Language) runCheck(testName string, check *Check) error {
 		return fmt.Errorf("Incorrect stderr %s", errorString)
 	}
 
-	match, err = regexp.MatchString(check.Stdout, result.RunStep.Stdout)
+	match, err = regexp.MatchString(check.Stdout, stdout.String())
 	if err != nil {
 		return err
 	}
