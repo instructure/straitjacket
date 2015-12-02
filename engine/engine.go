@@ -3,28 +3,20 @@ package engine
 import (
 	"fmt"
 	"path/filepath"
+
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // Engine is a code execution engine, supporting a set of languages for
 // sandboxed code execution.
 type Engine struct {
 	languages []*Language
+	client    *docker.Client
 }
 
 // Languages returns the list of supported execution languages.
 func (eng *Engine) Languages() []*Language {
 	return eng.languages
-}
-
-// Run executes the given source code with the given options, using the
-// specified language.
-func (eng *Engine) Run(languageName string, opts *RunOptions) (*RunResult, error) {
-	lang := eng.findLanguage(languageName)
-	if lang == nil {
-		return nil, fmt.Errorf("Language not found: '%s'", languageName)
-	}
-
-	return lang.Run(opts)
 }
 
 // New creates a new execution engine using the yaml config files in the
@@ -56,10 +48,13 @@ func New(confPath string, disableApparmor bool) (result *Engine, err error) {
 		result.languages = append(result.languages, lang)
 	}
 
+	result.client, err = docker.NewClient(endpoint)
+
 	return
 }
 
-func (eng *Engine) findLanguage(name string) *Language {
+// FindLanguage returns the language with the given name, if one exists.
+func (eng *Engine) FindLanguage(name string) *Language {
 	for _, lang := range eng.Languages() {
 		if lang.Name == name {
 			return lang

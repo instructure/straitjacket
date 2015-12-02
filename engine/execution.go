@@ -21,127 +21,112 @@ type ExecutionResult struct {
 	// How long this step ran.
 	RunTime time.Duration
 	// If an error occured, this error string will be non-empty.
-	ErrorString string
+	ErrorString    string
+	Stdout, Stderr string
 }
 
 type executionOptions struct {
-	Source         string
-	Stdin          io.Reader
-	Stdout, Stderr io.Writer
-	Timeout        int64
-	MaxOutputSize  int
-}
-
-type execution struct {
-	step            string
-	command         []string
-	srcDir          string
-	dockerImage     string
 	apparmorProfile string
-	client          *docker.Client
-	container       *docker.Container
-	sentinel        chan struct{}
-	result          *ExecutionResult
+	stdin           io.Reader
+	stdout, stderr  io.Writer
+	timeout         int64
+	maxOutputSize   int
 }
 
-// Initialize a new exeuction object for use.
-func newExecution(step string, command []string, srcDir, dockerImage, apparmorProfile string) (exe *execution, err error) {
-	exe = &execution{
-		step:            step,
-		command:         command,
-		srcDir:          srcDir,
-		dockerImage:     dockerImage,
-		apparmorProfile: apparmorProfile,
-		sentinel:        make(chan struct{}),
-		result:          &ExecutionResult{},
-	}
+type container struct {
+	id     string
+	client *docker.Client
+}
 
-	exe.client, err = docker.NewClient(endpoint)
+func createContainer(client *docker.Client, opts docker.CreateContainerOptions) (c *container, err error) {
+	var dockerInfo *docker.Container
+	dockerInfo, err = client.CreateContainer(opts)
+	if err == nil {
+		c = &container{
+			client: client,
+			id:     dockerInfo.ID,
+		}
+	}
 	return
 }
 
-// Run the execution with the given options.
-func (exe *execution) run(opts *executionOptions) (result *ExecutionResult, err error) {
-	result = exe.result
-	timeout := false
-	defer exe.cleanup()
+func (c *container) Remove() {
+	c.client.RemoveContainer(docker.RemoveContainerOptions{ID: c.id, Force: true})
+}
 
-	err = exe.createContainer()
+func (c *container) execute(step string, opts *executionOptions) (result *ExecutionResult, err error) {
+	result = &ExecutionResult{}
+	timeout := false
 
 	if err == nil {
 		startTime := time.Now()
-		runResult := exe.attachAndRun(opts.Stdin, opts.Stdout, opts.Stderr, opts.MaxOutputSize)
+		err1, err2 := c.attachAndRun(result, opts)
 		select {
-		case err = <-runResult:
+		case err = <-err1:
+		case err = <-err2:
 			// pass
-		case <-time.After(time.Duration(opts.Timeout) * time.Second):
+		case <-time.After(time.Duration(opts.timeout) * time.Second):
 			timeout = true
 		}
 		result.RunTime = time.Now().Sub(startTime)
+
+		// if the container is already stopped we just ignore the error respose...
+		// RemoveContainer will be called later.
+		c.client.KillContainer(docker.KillContainerOptions{ID: c.id})
+		// make sure we've shut down by waiting for attachAndRun to push or close the channels
+		err = firstError(err, <-err1, <-err2)
 	}
 
 	if timeout {
-		result.ErrorString = fmt.Sprintf("%s_timelimit", exe.step)
+		result.ErrorString = fmt.Sprintf("%s_timelimit", step)
 		result.ExitCode = -9
-	} else if result.ExitCode != 0 {
-		result.ErrorString = fmt.Sprintf("%s_error", exe.step)
 	} else if _, ok := err.(*OutputTooLarge); ok {
 		// treat too-large output as a soft error, still returning a response
 		err = nil
 		result.ExitCode = -10
-		result.ErrorString = fmt.Sprintf("%s_output_size_error", exe.step)
+		result.ErrorString = fmt.Sprintf("%s_output_size_error", step)
+	} else if result.ExitCode != 0 {
+		result.ErrorString = fmt.Sprintf("%s_error", step)
 	}
 
 	return
 }
 
-func (exe *execution) createContainer() (err error) {
-	exe.container, err = exe.client.CreateContainer(docker.CreateContainerOptions{
-		Config: &docker.Config{
-			Image:           exe.dockerImage,
-			Cmd:             exe.command,
-			OpenStdin:       true,
-			StdinOnce:       true,
-			NetworkDisabled: true,
-		},
-	})
-
-	return
-}
-
-func (exe *execution) attachAndRun(stdin io.Reader, stdout, stderr io.Writer, maxOutput int) chan error {
+func (c *container) attachAndRun(result *ExecutionResult, opts *executionOptions) (chan error, chan error) {
 	sentinel := make(chan struct{})
 	runResult := make(chan error)
 	attachResult := make(chan error)
-	finalResult := make(chan error)
 
 	// run goroutine
 	go func() {
 		_ = <-sentinel
 		securityOpt := []string{}
-		if exe.apparmorProfile != "" {
-			securityOpt = append(securityOpt, fmt.Sprintf("apparmor:%s", exe.apparmorProfile))
+		if opts.apparmorProfile != "" {
+			securityOpt = append(securityOpt, fmt.Sprintf("apparmor:%s", opts.apparmorProfile))
 		}
 		// when we get the sentinel, we know we've attached in the other goroutine
-		err := exe.client.StartContainer(exe.container.ID, &docker.HostConfig{
-			Binds:       []string{fmt.Sprintf("%s:/src", exe.srcDir)},
+		err := c.client.StartContainer(c.id, &docker.HostConfig{
 			SecurityOpt: securityOpt,
+			LogConfig: docker.LogConfig{
+				Type: "none",
+			},
 		})
 		sentinel <- struct{}{}
 
 		if err == nil {
-			exe.result.ExitCode, err = exe.client.WaitContainer(exe.container.ID)
+			result.ExitCode, err = c.client.WaitContainer(c.id)
 		}
 		runResult <- err
+		close(runResult)
 	}()
 
 	// attach goroutine
 	go func() {
-		err := exe.client.AttachToContainer(docker.AttachToContainerOptions{
-			Container:    exe.container.ID,
-			InputStream:  stdin,
-			OutputStream: NewLimitedWriter(stdout, maxOutput),
-			ErrorStream:  NewLimitedWriter(stderr, maxOutput),
+		err := c.client.AttachToContainer(docker.AttachToContainerOptions{
+			Container:    c.id,
+			InputStream:  opts.stdin,
+			OutputStream: NewLimitedWriter(opts.stdout, opts.maxOutputSize),
+			ErrorStream:  NewLimitedWriter(opts.stderr, opts.maxOutputSize),
 			Stream:       true,
 			Stdin:        true,
 			Stdout:       true,
@@ -150,19 +135,10 @@ func (exe *execution) attachAndRun(stdin io.Reader, stdout, stderr io.Writer, ma
 		})
 
 		attachResult <- err
+		close(attachResult)
 	}()
 
-	go func() {
-		finalResult <- firstError(<-runResult, <-attachResult)
-	}()
-
-	return finalResult
-}
-
-func (exe *execution) cleanup() {
-	if exe.container != nil {
-		exe.client.RemoveContainer(docker.RemoveContainerOptions{ID: exe.container.ID, Force: true})
-	}
+	return runResult, attachResult
 }
 
 func firstError(errs ...error) error {

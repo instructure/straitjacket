@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"straitjacket/engine"
 	"strconv"
@@ -24,10 +25,6 @@ type executionResult struct {
 	Error       *string        `json:"error"`
 	Compilation *executionStep `json:"compilation"`
 	Runtime     *executionStep `json:"runtime"`
-}
-
-type buffers struct {
-	compileStdout, compileStderr, stdout, stderr bytes.Buffer
 }
 
 func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
@@ -60,15 +57,17 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	var buffers buffers
+	var stdout, stderr bytes.Buffer
+	lang := ctx.Engine.FindLanguage(languageName)
+	if lang == nil {
+		panic(fmt.Errorf("Language not found: '%s'", languageName))
+	}
 
-	runResult, err := ctx.Engine.Run(languageName, &engine.RunOptions{
+	runResult, err := lang.Run(&engine.RunOptions{
 		Source:         source,
 		Stdin:          strings.NewReader(stdin),
-		CompileStdout:  &buffers.compileStdout,
-		CompileStderr:  &buffers.compileStderr,
-		Stderr:         &buffers.stderr,
-		Stdout:         &buffers.stdout,
+		Stdout:         &stdout,
+		Stderr:         &stderr,
 		Timeout:        timeout,
 		CompileTimeout: compileTimeout,
 		MaxOutputSize:  ctx.MaxOutputSize,
@@ -77,7 +76,7 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	response := buildResult(runResult, &buffers)
+	response := buildResult(runResult, &stdout, &stderr)
 	code := 200
 	if !response.Success {
 		code = 400
@@ -115,7 +114,7 @@ func parseTimelimit(timelimit string, defaultLimit int64) (timeout int64, err er
 	return
 }
 
-func buildResult(runResult *engine.RunResult, buffers *buffers) *executionResult {
+func buildResult(runResult *engine.RunResult, stdout, stderr *bytes.Buffer) *executionResult {
 	result := &executionResult{}
 
 	if runResult.RunStep != nil && runResult.RunStep.ErrorString != "" {
@@ -129,19 +128,33 @@ func buildResult(runResult *engine.RunResult, buffers *buffers) *executionResult
 	}
 
 	if runResult.CompileStep != nil {
-		result.Compilation = translateExecutionResult(runResult.CompileStep, buffers.compileStdout, buffers.compileStderr)
+		result.Compilation = translateExecutionResult(runResult.CompileStep, nil, nil)
 	}
 	if runResult.RunStep != nil {
-		result.Runtime = translateExecutionResult(runResult.RunStep, buffers.stdout, buffers.stderr)
+		result.Runtime = translateExecutionResult(runResult.RunStep, stdout, stderr)
 	}
 
 	return result
 }
 
-func translateExecutionResult(result *engine.ExecutionResult, stdout, stderr bytes.Buffer) *executionStep {
+func translateExecutionResult(result *engine.ExecutionResult, stdout, stderr *bytes.Buffer) *executionStep {
+	var stdoutStr, stderrStr string
+
+	if stdout == nil {
+		stdoutStr = result.Stdout
+	} else {
+		stdoutStr = stdout.String()
+	}
+
+	if stderr == nil {
+		stderrStr = result.Stderr
+	} else {
+		stderrStr = stderr.String()
+	}
+
 	res := &executionStep{
-		Stdout:     stdout.String(),
-		Stderr:     stderr.String(),
+		Stdout:     stdoutStr,
+		Stderr:     stderrStr,
 		ExitStatus: result.ExitCode,
 		Time:       result.RunTime.Seconds(),
 		Error:      &result.ErrorString,

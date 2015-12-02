@@ -6,7 +6,4 @@ RUN chmod +x /build-run
 RUN useradd docker
 USER docker
 
-VOLUME /src
-WORKDIR /src
-
 ENTRYPOINT ["/build-run"]

@@ -8,7 +8,4 @@ RUN apt-get update && \
 RUN useradd docker
 USER docker
 
-VOLUME /src
-WORKDIR /src
-
 ENTRYPOINT ["lua"]

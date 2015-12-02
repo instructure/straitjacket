@@ -2,7 +2,10 @@
 	"ImportPath": "straitjacket",
 	"GoVersion": "go1.5.1",
 	"Packages": [
-		"./..."
+		".",
+		"./engine",
+		"./errorlog",
+		"./handlers"
 	],
 	"Deps": [
 		{
@@ -17,11 +20,15 @@
 		},
 		{
 			"ImportPath": "github.com/fsouza/go-dockerclient",
-			"Rev": "4190b081d89764179cc1220c5200f67f05d4ea09"
+			"Rev": "d750ee8aff39bca4ccf0b362db4f04510145d678"
 		},
 		{
 			"ImportPath": "github.com/getsentry/raven-go",
 			"Rev": "74c334d7b8aaa4fd1b4fc6aa428c36fed1699e28"
+		},
+		{
+			"ImportPath": "github.com/golang/mock/gomock",
+			"Rev": "06883d979f10cc178f2716846215c8cf90f9e363"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
@@ -30,6 +37,10 @@
 		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "47e8f450ef38c857cdd922ec08862ca9d65a1c6d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "c66b764651cdca39f42d263b07a507c6e8b58ee9"
 		},
 		{
 			"ImportPath": "github.com/meatballhat/negroni-logrus",
@@ -42,6 +53,16 @@
 		{
 			"ImportPath": "github.com/rs/cors",
 			"Rev": "5e4ce6bc0ecd3472f6f943666d84876691be2ced"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/require",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",

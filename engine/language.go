@@ -33,59 +33,11 @@ type RunResult struct {
 
 // RunOptions is configuration for a Language Run.
 type RunOptions struct {
-	Source                       string
-	Stdin                        io.Reader
-	Stdout, Stderr               io.Writer
-	CompileStdout, CompileStderr io.Writer
-	Timeout, CompileTimeout      int64
-	MaxOutputSize                int
-}
-
-// Run executes the given source code in a sandboxed environment, providing the
-// given stdin and returning exit code, stdout and stderr.
-func (lang *Language) Run(opts *RunOptions) (*RunResult, error) {
-	var exe *execution
-	result := &RunResult{}
-
-	dir, err := writeFile(lang.Filename, opts.Source)
-	if err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(dir)
-
-	filePath := fmt.Sprintf("/src/%s", lang.Filename)
-
-	if lang.compileStep {
-		exe, err = newExecution("compilation", []string{"--build", filePath}, dir, lang.DockerImage, lang.CompilerProfile)
-		if err != nil {
-			return nil, err
-		}
-		result.CompileStep, err = exe.run(&executionOptions{
-			Source:        opts.Source,
-			Timeout:       opts.CompileTimeout,
-			MaxOutputSize: opts.MaxOutputSize,
-			Stdout:        opts.CompileStdout,
-			Stderr:        opts.CompileStderr,
-		})
-		if err != nil || result.CompileStep.ExitCode != 0 {
-			return result, err
-		}
-	}
-
-	exe, err = newExecution("runtime", []string{filePath}, dir, lang.DockerImage, lang.ApparmorProfile)
-	if err != nil {
-		return nil, err
-	}
-	result.RunStep, err = exe.run(&executionOptions{
-		Source:        opts.Source,
-		Stdin:         opts.Stdin,
-		Stdout:        opts.Stdout,
-		Stderr:        opts.Stderr,
-		Timeout:       opts.Timeout,
-		MaxOutputSize: opts.MaxOutputSize,
-	})
-
-	return result, err
+	Source                  string
+	Stdin                   io.Reader
+	Stdout, Stderr          io.Writer
+	Timeout, CompileTimeout int64
+	MaxOutputSize           int
 }
 
 func writeFile(filename, source string) (string, error) {

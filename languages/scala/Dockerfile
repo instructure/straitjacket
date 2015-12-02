@@ -6,8 +6,5 @@ RUN chmod +x /build-run
 RUN useradd docker
 USER docker
 
-VOLUME /src
-WORKDIR /src
-
 # ENV SCALA_RUNNER_DEBUG true
 ENTRYPOINT ["/build-run"]

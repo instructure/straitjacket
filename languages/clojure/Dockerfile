@@ -8,8 +8,5 @@ RUN chown -R docker /clojure
 
 USER docker
 
-VOLUME /src
-WORKDIR /src
-
 ENV JAVA_TOOL_OPTIONS "-Xmx256m -Xms256m -Xss256k"
 ENTRYPOINT ["java", "-cp", "/clojure/clojure-1.7.0-slim.jar", "clojure.main"]

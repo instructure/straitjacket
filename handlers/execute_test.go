@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"straitjacket/engine"
@@ -34,6 +35,8 @@ func TestFullSuccess(t *testing.T) {
 			ExitCode:    0,
 			RunTime:     1 * time.Second,
 			ErrorString: "",
+			Stdout:      "x",
+			Stderr:      "y",
 		},
 		RunStep: &engine.ExecutionResult{
 			ExitCode:    0,
@@ -41,12 +44,10 @@ func TestFullSuccess(t *testing.T) {
 			ErrorString: "",
 		},
 	}
-	var buffers buffers
-	buffers.compileStdout.WriteString("x")
-	buffers.compileStderr.WriteString("y")
-	buffers.stdout.WriteString("rx")
-	buffers.stderr.WriteString("ry")
-	result := buildResult(runResult, &buffers)
+	var stdout, stderr bytes.Buffer
+	stdout.WriteString("rx")
+	stderr.WriteString("ry")
+	result := buildResult(runResult, &stdout, &stderr)
 	assert.Equal(t, true, result.Success)
 	assert.Nil(t, result.Error)
 	assert.Nil(t, result.Compilation.Error)
@@ -69,10 +70,10 @@ func TestNoCompileStep(t *testing.T) {
 			ErrorString: "",
 		},
 	}
-	var buffers buffers
-	buffers.stdout.WriteString("x")
-	buffers.stderr.WriteString("y")
-	result := buildResult(runResult, &buffers)
+	var stdout, stderr bytes.Buffer
+	stdout.WriteString("x")
+	stderr.WriteString("y")
+	result := buildResult(runResult, &stdout, &stderr)
 	assert.Equal(t, true, result.Success)
 	assert.Nil(t, result.Error)
 	assert.Nil(t, result.Compilation)
@@ -89,12 +90,11 @@ func TestFailedCompileStep(t *testing.T) {
 			ExitCode:    3,
 			RunTime:     time.Duration(2.5 * float64(time.Second)),
 			ErrorString: "compilation_error",
+			Stdout:      "x",
+			Stderr:      "y",
 		},
 	}
-	var buffers buffers
-	buffers.compileStdout.WriteString("x")
-	buffers.compileStderr.WriteString("y")
-	result := buildResult(runResult, &buffers)
+	result := buildResult(runResult, nil, nil)
 	assert.Equal(t, false, result.Success)
 	assert.Equal(t, "compilation_error", *result.Error)
 	assert.Nil(t, result.Runtime)
@@ -118,9 +118,9 @@ func TestFailedRuntimeStep(t *testing.T) {
 			ErrorString: "runtime_error",
 		},
 	}
-	var buffers buffers
-	buffers.stdout.WriteString("x")
-	result := buildResult(runResult, &buffers)
+	var stdout, stderr bytes.Buffer
+	stdout.WriteString("x")
+	result := buildResult(runResult, &stdout, &stderr)
 	assert.Equal(t, false, result.Success)
 	assert.Nil(t, result.Compilation.Error)
 	assert.Equal(t, "runtime_error", *result.Error)

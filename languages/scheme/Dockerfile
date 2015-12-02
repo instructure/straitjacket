@@ -8,9 +8,6 @@ RUN apt-get update && \
 RUN useradd docker
 USER docker
 
-VOLUME /src
-WORKDIR /src
-
 ENV GUILE_AUTO_COMPILE=0
 
 ENTRYPOINT ["guile"]

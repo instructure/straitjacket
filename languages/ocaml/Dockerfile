@@ -17,7 +17,6 @@ ADD build-run /build-run
 RUN chmod +x /build-run
 USER docker
 
-VOLUME /src
 WORKDIR /src
 
 ENTRYPOINT ["/build-run"]

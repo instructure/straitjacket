@@ -20,6 +20,7 @@ func newServerStack(engine *engine.Engine) *negroni.Negroni {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", context.IndexHandler).Methods("GET")
 	router.HandleFunc("/execute", context.ExecuteHandler).Methods("POST")
+	router.HandleFunc("/executews", context.ExecuteWSHandler).Methods("GET")
 	router.HandleFunc("/info", context.InfoHandler).Methods("GET")
 
 	server := negroni.New(xrequestid.New(16),

@@ -14,7 +14,7 @@ import (
 // mocking during tests. Currently engine.Engine is the only concrete implementation.
 type Engine interface {
 	Languages() []*engine.Language
-	Run(languageName string, opts *engine.RunOptions) (*engine.RunResult, error)
+	FindLanguage(languageName string) *engine.Language
 }
 
 // Context is the HTTP handler context.

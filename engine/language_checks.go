@@ -42,25 +42,43 @@ type Checks struct {
 	Template, Simple, Apparmor, Rlimit Check
 }
 
+// Template returns the "source code template" for this language, a good
+// starting point for writing an app that reads from stdin, processes, and
+// writes to stdout.
 func (lang *Language) Template() string {
 	if lang.Checks.Template.Source != "" {
 		return lang.Checks.Template.Source
-	} else {
-		return lang.Checks.Simple.Source
 	}
+	return lang.Checks.Simple.Source
+}
+
+func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
+	result = &RunResult{}
+	image, compileResult, err := lang.Compile(opts.CompileTimeout, opts.Source)
+	result.CompileStep = compileResult
+	if err == nil {
+		defer image.Remove()
+
+		if compileResult != nil && compileResult.ExitCode != 0 {
+			return
+		}
+
+		result.RunStep, err = image.Run(opts)
+	}
+
+	return
 }
 
 func (lang *Language) runCheck(testName string, check *Check) error {
-	var cstdout, cstderr, stdout, stderr bytes.Buffer
+	var stdout, stderr bytes.Buffer
+
 	result, err := lang.Run(&RunOptions{
 		Source:         check.Source,
 		Stdin:          strings.NewReader(check.Stdin),
-		CompileStdout:  &cstdout,
-		CompileStderr:  &cstderr,
 		Stdout:         &stdout,
 		Stderr:         &stderr,
-		Timeout:        30,
 		CompileTimeout: 30,
+		Timeout:        30,
 		MaxOutputSize:  3500,
 	})
 

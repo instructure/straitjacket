@@ -6,8 +6,5 @@ RUN chmod +x /build-run
 RUN useradd docker
 USER docker
 
-VOLUME /src
-WORKDIR /src
-
 ENV JAVA_TOOL_OPTIONS "-Xmx256m -Xms256m -Xss256k"
 ENTRYPOINT ["/build-run"]
