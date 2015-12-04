@@ -51,7 +51,7 @@ paths:
           type: number
         - in: formData
           name: compile_timelimit
-          description: Time limit to apply to the compile step, in seconds. Defaults to the same value as timelimit.
+          description: Time limit to apply to the compile step, in seconds. Defaults to the value specified for `timelimit`.
           required: false
           type: number
       produces:
@@ -61,6 +61,16 @@ paths:
           description: successful response
           schema:
             $ref: "#/definitions/ExecuteResponse"
+  /executews:
+    get:
+      operationId: ExecuteWS
+      schemes: [ws]
+      tags:
+        - code_execution
+      summary: Execute code with streaming I/O.
+      responses:
+        "101":
+          description: switching to websocket protocol
 
 definitions:
   InfoResponse:
