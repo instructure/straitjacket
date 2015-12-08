@@ -5,6 +5,6 @@ WORKDIR /go/src/straitjacket
 
 RUN go get github.com/tools/godep
 ADD . /go/src/straitjacket
-RUN go-wrapper install
+RUN go install straitjacket
 
-ENTRYPOINT ["go-wrapper", "run"]
+ENTRYPOINT /go/bin/straitjacket

@@ -14,7 +14,7 @@ paths:
       operationId: Info
       tags:
         - code_execution
-      summary: Get information about supported languages.
+      summary: Get information about supported languages
       produces:
         - application/json
       responses:
@@ -27,7 +27,7 @@ paths:
       operationId: Execute
       tags:
         - code_execution
-      summary: Execute code in a sandboxed environment.
+      summary: Execute code in a sandboxed environment
       parameters:
         - in: formData
           name: language
@@ -67,7 +67,55 @@ paths:
       schemes: [ws]
       tags:
         - code_execution
-      summary: Execute code with streaming I/O.
+      summary: Execute code over a websocket protocol
+      description: |
+        WebSocket API with support for separate compilation, and streaming I/O.
+
+        This API documentation doesn't support websockets, so this endpoint documentation is only informational. If you'd like to try out the API from the command line, the [wscat](https://www.npmjs.com/package/wscat) npm module is a good option.
+
+        The workflow for using the websocket API is:
+        1. Send a `compile` request to load in the source code. Each websocket connection is tied to a particular compilation, so you'll want to open a new connection to run different code. This step is necessary even for interpreted languages, where `compile` just means load in the source code.
+        2. Wait for the compilation response and check for a successful compilation.
+
+        You can then execute the compiled code one or more times, multiple parallel executions are supported.
+        1. Send a `run` request with a unique ID for each execution you want to start.
+        2. Send one or more `write` requests to stream stdin to each run.
+        3. You will receive streaming stdout/stderr data responses immediately as output is written.
+        4. If you need to close stdin to trigger the program to exit, send a `close` request.
+        5. When each run exits, it will send a `runtime` response containing the exit code.
+
+        For instance, a typical session might look like this, with server responses prefixed by `=`:
+
+        ```
+        {"compile": {"language": "ruby", "source": "$stdin.each_line { |l| puts l }" }}
+        = {"success":true,"error":null,"compilation":{"exit_status":0,"time":0,"error":null}}
+        {"run": {"id": "1234"}}
+        {"write": {"id": "1234", "stdin": "1\n2\n"}}
+        = {"id":"1234","stream":"stdout","output":"1\n2\n"}
+        {"write": {"id": "1234", "stdin": "3\n"}}
+        = {"id":"1234","stream":"stdout","output":"3\n"}
+        {"close": {"id": "1234"}}
+        = {"id":"1234","success":true,"error":null,"runtime":{"exit_status":0,"time":11.348454793,"error":null}}
+        ```
+
+        For the simplest use case, you can send `compile`, `run`, `write`, and `close` all in the same request (or any combination of these), and the commands will be executed in order:
+
+        ```
+        { "compile": {"language": "ruby", "source": "$stdin.each_line { |l| puts l }" }, "run": {"id": "1234"}, "write": {"id": "1234", "stdin": "1\n2\n3\n"}, "close": {"id": "1234"} }
+        ```
+
+        If any error occurs, an `error` response message will be returned. If the error is during compilation or running, a full `compilation`/`runtime` response will be returned as well. A `status_code` will also be returned, which uses standard HTTP status codes to classify the error, such as 500 or 400.
+
+        ```
+        {"error": "missing parameter: `language`", "status": "400"}
+        ```
+
+        No cleanup step is required, just close the connection when done. Compiled code cannot be shared between websocket connections.
+      parameters:
+        - in: body
+          name: WebSocketRequest
+          schema:
+            $ref: "#/definitions/WebSocketRequest"
       responses:
         "101":
           description: switching to websocket protocol
@@ -140,3 +188,57 @@ definitions:
       stderr:
         type: string
         description: The stderr of the process
+
+  WebSocketRequest:
+    properties:
+      compile:
+        $ref: "#/definitions/CompileRequest"
+      run:
+        $ref: "#/definitions/RunRequest"
+      write:
+        $ref: "#/definitions/WriteRequest"
+      close:
+        $ref: "#/definitions/CloseRequest"
+
+  CompileRequest:
+    required: [language, source]
+    description: Load in and compile the source code to execute.
+    properties:
+      language:
+        type: string
+        description: The language of the source to compile, valid values are returned by the `info` endpoint.
+      source:
+        type: string
+        description: The source code to compile.
+      timelimit:
+        type: number
+        description: Time limit to apply to the compilation, in seconds.
+        default: 60
+  RunRequest:
+    required: [id]
+    description: Start a new execution of the compiled code.
+    properties:
+      id:
+        type: string
+        description: A client-defined unique ID for this run.
+      timelimit:
+        type: number
+        description: Time limit to apply to the run, in seconds.
+        default: 60
+  WriteRequest:
+    required: [id, stdin]
+    description: Write data to this execution's stdin stream.
+    properties:
+      id:
+        type: string
+        description: A client-defined unique ID for this run.
+      stdin:
+        type: string
+        description: Data to write to the specified stdin.
+  CloseRequest:
+    required: [id]
+    description: Close this execution's stdin stream.
+    properties:
+      id:
+        type: string
+        description: A client-defined unique ID for this run.

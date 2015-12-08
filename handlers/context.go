@@ -19,12 +19,13 @@ type Engine interface {
 
 // Context is the HTTP handler context.
 type Context struct {
-	Engine        Engine
-	extensionsMap map[string]string
-	log           *logrus.Logger
-	MaxSourceSize int
-	MaxStdinSize  int
-	MaxOutputSize int
+	Engine         Engine
+	extensionsMap  map[string]string
+	log            *logrus.Logger
+	DefaultTimeout int64
+	MaxSourceSize  int
+	MaxStdinSize   int
+	MaxOutputSize  int
 }
 
 // NewContext returns a new HTTP handler context that will use the provided
@@ -34,11 +35,12 @@ func NewContext(engine Engine) *Context {
 	log.Level = logrus.InfoLevel
 	log.Formatter = &logrus.JSONFormatter{}
 	return &Context{
-		Engine:        engine,
-		log:           log,
-		MaxSourceSize: 64 * 1024,
-		MaxStdinSize:  512 * 1024,
-		MaxOutputSize: 64 * 1024,
+		Engine:         engine,
+		log:            log,
+		DefaultTimeout: 60,
+		MaxSourceSize:  64 * 1024,
+		MaxStdinSize:   512 * 1024,
+		MaxOutputSize:  64 * 1024,
 	}
 }
 

@@ -13,8 +13,8 @@ import (
 )
 
 type executionStep struct {
-	Stdout     string  `json:"stdout"`
-	Stderr     string  `json:"stderr"`
+	Stdout     string  `json:"stdout,omitempty"`
+	Stderr     string  `json:"stderr,omitempty"`
 	ExitStatus int     `json:"exit_status"`
 	Time       float64 `json:"time"`
 	Error      *string `json:"error"`
@@ -23,8 +23,11 @@ type executionStep struct {
 type executionResult struct {
 	Success     bool           `json:"success"`
 	Error       *string        `json:"error"`
-	Compilation *executionStep `json:"compilation"`
-	Runtime     *executionStep `json:"runtime"`
+	Compilation *executionStep `json:"compilation,omitempty"`
+	Runtime     *executionStep `json:"runtime,omitempty"`
+	// used by the websocket API responses
+	ID         string `json:"id,omitempty"`
+	StatusCode string `json:"status_code,omitempty"`
 }
 
 func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
@@ -47,15 +50,8 @@ func (ctx *Context) ExecuteHandler(res http.ResponseWriter, req *http.Request) {
 		"compile_timelimit": compileTimelimit,
 	}).Info("executing code")
 
-	timeout, err := parseTimelimit(timelimit, 60)
-	if err != nil {
-		panic(err)
-	}
-
-	compileTimeout, err := parseTimelimit(compileTimelimit, timeout)
-	if err != nil {
-		panic(err)
-	}
+	timeout := parseTimelimit(timelimit, ctx.DefaultTimeout)
+	compileTimeout := parseTimelimit(compileTimelimit, timeout)
 
 	var stdout, stderr bytes.Buffer
 	lang := ctx.Engine.FindLanguage(languageName)
@@ -92,7 +88,7 @@ func errorResponse(code int, message string, res http.ResponseWriter) {
 	sendResponse(code, response, res)
 }
 
-func sendResponse(code int, response *executionResult, res http.ResponseWriter) {
+func sendResponse(code int, response interface{}, res http.ResponseWriter) {
 	json, err := json.Marshal(response)
 	if err != nil {
 		panic(err)
@@ -106,10 +102,13 @@ func sendResponse(code int, response *executionResult, res http.ResponseWriter) 
 	}
 }
 
-func parseTimelimit(timelimit string, defaultLimit int64) (timeout int64, err error) {
-	timeout = defaultLimit
+func parseTimelimit(timelimit string, defaultLimit int64) (timeout int64) {
+	var err error
 	if timelimit != "" {
 		timeout, err = strconv.ParseInt(timelimit, 10, 64)
+	}
+	if err != nil {
+		timeout = defaultLimit
 	}
 	return
 }

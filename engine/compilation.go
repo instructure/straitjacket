@@ -75,9 +75,10 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 		})
 	}
 
+	result = &ExecutionResult{}
+
 	if err == nil && lang.compileStep {
 		var stdout, stderr bytes.Buffer
-		result = &ExecutionResult{}
 		result, err = container.execute("compilation", &executionOptions{
 			timeout:         timeout,
 			stdout:          &stdout,
@@ -89,7 +90,7 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 		result.Stderr = stderr.String()
 	}
 
-	if err == nil {
+	if err == nil && result.ExitCode == 0 {
 		var dockerImage *docker.Image
 		dockerImage, err = client.CommitContainer(docker.CommitContainerOptions{
 			Container: container.id,
