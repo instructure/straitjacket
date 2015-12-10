@@ -3,7 +3,7 @@ visible_name: Racket
 version: "6.1"
 apparmor_profile: straitjacket/interpreter/racket
 filename: source.rkt
-docker_image: straitjacket-racket
+docker_image: straitjacket/lang-racket
 
 file_extensions:
   - rkt
@@ -18,7 +18,7 @@ tests:
       (define (process line)
         ;;; Process input lines here
         line)
-      
+
       (for ([line (in-producer read-line eof)])
         (displayln (process line)))
     stdin:  "1\n2\n3\n"
@@ -34,7 +34,7 @@ tests:
         (* 2 (string->number line)))
 
       (for ([line (in-producer read-line eof)])
-        (displayln (process line)))  
+        (displayln (process line)))
     stdin:  "1\n2\n3\n"
     stdout: "\\A2\n4\n6\n\\z"
     stderr: "\\A\\z"

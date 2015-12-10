@@ -3,7 +3,7 @@ visible_name: CoffeeScript (1.9.0)
 version: "1.9.0"
 apparmor_profile: straitjacket/interpreter/coffee
 filename: source.coffee
-docker_image: straitjacket-coffeescript
+docker_image: straitjacket/lang-coffeescript
 
 file_extensions:
   - coffee

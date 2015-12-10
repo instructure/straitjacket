@@ -30,6 +30,8 @@ GET /info
 POST /execute
 ```
 
+There is also a more advanced websocket API at `GET /executews`.
+
 You can view the API documentation directly from github at
 http://petstore.swagger.io/?url=https://raw.githubusercontent.com/instructure/straitjacket/master/public/api/2015-07-14.yml
 though you'll need to spin up an instance of straitjacket to actually perform

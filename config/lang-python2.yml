@@ -3,7 +3,7 @@ visible_name: Python 2
 version: "2.7.10"
 apparmor_profile: straitjacket/interpreter/python
 filename: source.py
-docker_image: straitjacket-python2
+docker_image: straitjacket/lang-python2
 
 tests:
   template:

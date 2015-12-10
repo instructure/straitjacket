@@ -4,7 +4,7 @@ version: "4.9"
 compiler_profile: straitjacket/compiler/cpp
 apparmor_profile: straitjacket/compiled/c
 filename: source.cpp
-docker_image: straitjacket-cpp
+docker_image: straitjacket/lang-cpp
 
 file_extensions:
   - cpp
@@ -99,4 +99,3 @@ tests:
     stdout: "\\A\\z"
     stderr: "\\Abad_alloc caught\\n\\z"
     exitstatus: 1
-

@@ -4,7 +4,7 @@ version: "4.9-v2.066"
 compiler_profile: straitjacket/compiler/d
 apparmor_profile: straitjacket/compiled/d
 filename: source.d
-docker_image: straitjacket-d
+docker_image: straitjacket/lang-d
 
 file_extensions:
   - d

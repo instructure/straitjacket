@@ -4,7 +4,7 @@ version: "7.10.2"
 compiler_profile: straitjacket/compiler/ghc
 apparmor_profile: straitjacket/compiled/ghc
 filename: source.hs
-docker_image: straitjacket-haskell
+docker_image: straitjacket/lang-haskell
 
 file_extensions:
   - hs

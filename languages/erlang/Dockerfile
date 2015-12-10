@@ -1,3 +1,3 @@
-FROM straitjacket-elixir
+FROM straitjacket/lang-elixir
 
 ENTRYPOINT ["escript"]

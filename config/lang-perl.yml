@@ -3,7 +3,7 @@ visible_name: Perl 5.20
 version: "5.20.2"
 apparmor_profile: straitjacket/interpreter/perl
 filename: source.pl
-docker_image: straitjacket-perl
+docker_image: straitjacket/lang-perl
 
 file_extensions:
   - pl

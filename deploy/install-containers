@@ -3,7 +3,5 @@ set -e
 
 for language in languages/*; do
   image_name=straitjacket/lang-$(basename $language)
-  echo "Building image $image_name"
-  docker build -t $image_name $language
-  docker push $image_name
+  docker pull $image_name:latest
 done

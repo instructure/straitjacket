@@ -4,7 +4,7 @@ version: "C11"
 compiler_profile: straitjacket/compiler/c
 apparmor_profile: straitjacket/compiled/c
 filename: source.c
-docker_image: straitjacket-c
+docker_image: straitjacket/lang-c
 
 file_extensions:
   - c

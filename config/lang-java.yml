@@ -4,7 +4,7 @@ version: "1.7.0_79"
 compiler_profile: straitjacket/compiler/java
 apparmor_profile: straitjacket/compiled/java
 filename: Main.java
-docker_image: straitjacket-java
+docker_image: straitjacket/lang-java
 
 file_extensions:
   - java

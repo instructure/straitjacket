@@ -4,7 +4,7 @@ version: "F2008"
 compiler_profile: straitjacket/compiler/gfortran
 apparmor_profile: straitjacket/compiled/gfortran
 filename: source.f08
-docker_image: straitjacket-fortran
+docker_image: straitjacket/lang-fortran
 
 file_extensions:
   - f08
@@ -16,7 +16,7 @@ tests:
     source: |
       INTEGER :: num
       INTEGER :: ios
-      
+
       ! Start the read block
       DO
         READ(*,*, END=999, IOSTAT=ios) num
@@ -24,10 +24,10 @@ tests:
           WRITE(*, '(I0)') num*2
         END IF
       END DO
-      
+
       999 CONTINUE
         STOP
-      
+
       END
     stdin:  "1\n2\n3\n"
     stdout: "\\A2\n4\n6\n\\z"

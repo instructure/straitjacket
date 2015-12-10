@@ -3,7 +3,7 @@ visible_name: JavaScript (nodejs 0.12 Harmony)
 version: "0.12"
 apparmor_profile: straitjacket/interpreter/node
 filename: source.js
-docker_image: straitjacket-nodejs
+docker_image: straitjacket/lang-nodejs
 
 file_extensions:
   - js

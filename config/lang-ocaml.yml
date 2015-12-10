@@ -4,7 +4,7 @@ version: "4.02.3"
 compiler_profile: straitjacket/compiler/ocaml
 apparmor_profile: straitjacket/compiled/default
 filename: source.ml
-docker_image: straitjacket-ocaml
+docker_image: straitjacket/lang-ocaml
 
 file_extensions:
   - ml

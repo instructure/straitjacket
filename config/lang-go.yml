@@ -4,7 +4,7 @@ version: "1.4.2"
 compiler_profile: straitjacket/compiler/go
 apparmor_profile: straitjacket/compiled/go
 filename: source.go
-docker_image: straitjacket-go
+docker_image: straitjacket/lang-go
 
 file_extensions:
   - go

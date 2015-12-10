@@ -3,7 +3,7 @@ visible_name: Ruby 2.2
 version: "2.2"
 apparmor_profile: straitjacket/interpreter/ruby
 filename: source.rb
-docker_image: straitjacket-ruby
+docker_image: straitjacket/lang-ruby
 
 file_extensions:
   - rb

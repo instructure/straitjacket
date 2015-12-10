@@ -3,7 +3,7 @@ visible_name: Python 3
 version: "3.4"
 apparmor_profile: straitjacket/interpreter/python
 filename: source.py
-docker_image: straitjacket-python3
+docker_image: straitjacket/lang-python3
 
 file_extensions:
   - py

@@ -3,7 +3,7 @@ visible_name: Elixir 1.0
 version: "1.0"
 apparmor_profile: straitjacket/interpreter/erlang
 filename: main.exs
-docker_image: straitjacket-elixir
+docker_image: straitjacket/lang-elixir
 
 file_extensions:
   - ex

@@ -3,7 +3,7 @@ visible_name: Erlang r18
 version: "18"
 apparmor_profile: straitjacket/interpreter/erlang
 filename: main.erl
-docker_image: straitjacket-erlang
+docker_image: straitjacket/lang-erlang
 
 file_extensions:
   - erl

@@ -3,7 +3,7 @@ visible_name: PHP 5
 version: "5.6.9"
 apparmor_profile: straitjacket/interpreter/default
 filename: source.php
-docker_image: straitjacket-php
+docker_image: straitjacket/lang-php
 
 file_extensions:
   - php
