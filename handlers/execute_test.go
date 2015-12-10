@@ -22,10 +22,8 @@ var timings = []struct {
 
 func TestParseTimelimit(t *testing.T) {
 	for _, param := range timings {
-		timelimit, err := parseTimelimit(param.value, 60)
-		if assert.NoError(t, err) {
-			assert.Equal(t, param.expected, timelimit)
-		}
+		timelimit := parseTimelimit(param.value, 60)
+		assert.Equal(t, param.expected, timelimit)
 	}
 }
 
@@ -140,9 +138,7 @@ func TestTooLargeBody(t *testing.T) {
 
 	expected := `{
 	  "success": false,
-		"error": "request_size_error",
-		"compilation": null,
-		"runtime": null
+		"error": "request_size_error"
 	}`
 
 	assertJSONResponse(t, 413, expected, w)

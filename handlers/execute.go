@@ -107,7 +107,7 @@ func parseTimelimit(timelimit string, defaultLimit int64) (timeout int64) {
 	if timelimit != "" {
 		timeout, err = strconv.ParseInt(timelimit, 10, 64)
 	}
-	if err != nil {
+	if err != nil || timelimit == "" {
 		timeout = defaultLimit
 	}
 	return
