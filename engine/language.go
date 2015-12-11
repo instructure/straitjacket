@@ -39,6 +39,26 @@ type RunOptions struct {
 	MaxOutputSize           int
 }
 
+// Run is a convenience method to compile, execute, and then cleanup code.
+func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
+	result = &RunResult{}
+	image, compileResult, err := lang.Compile(opts.CompileTimeout, opts.Source)
+	result.CompileStep = compileResult
+	if image != nil {
+		defer func() {
+			go image.Remove()
+		}()
+
+		if compileResult != nil && compileResult.ExitCode != 0 {
+			return
+		}
+
+		result.RunStep, err = image.Run(opts)
+	}
+
+	return
+}
+
 func (lang *Language) validate() error {
 	if lang.Name == "" {
 		return fmt.Errorf("Missing required attribute: name")

@@ -9,6 +9,14 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
+// An Image is the result of a compile, a reference to a docker container
+// containing the uploaded and compiled source code. It can be used to spawn
+// multiple execution containers (internally this works via a shared read-only
+// volume).
+//
+// Originally we did this by commiting a new docker image containing the
+// compiled source, but that docker commit step takes over 1s on average, so now
+// we use the shared volume approach.
 type Image struct {
 	ID     string
 	lang   *Language
@@ -19,16 +27,21 @@ func (image *Image) Run(opts *RunOptions) (result *ExecutionResult, err error) {
 	filePath := fmt.Sprintf("/src/%s", image.lang.Filename)
 	container, err := createContainer(image.client, docker.CreateContainerOptions{
 		Config: &docker.Config{
-			Image:           image.ID,
+			Image:           image.lang.DockerImage,
 			Cmd:             []string{filePath},
 			OpenStdin:       true,
 			StdinOnce:       true,
 			NetworkDisabled: true,
 		},
+		HostConfig: &docker.HostConfig{
+			VolumesFrom: []string{image.ID + ":ro"},
+		},
 	})
 
 	if err == nil {
-		defer container.Remove()
+		defer func() {
+			go container.Remove()
+		}()
 		result = &ExecutionResult{}
 		result, err = container.execute("runtime", &executionOptions{
 			timeout:         opts.Timeout,
@@ -43,14 +56,18 @@ func (image *Image) Run(opts *RunOptions) (result *ExecutionResult, err error) {
 	return
 }
 
+// Remove will delete this image from docker, make sure this gets called so we
+// don't end up keeping images around.
 func (image *Image) Remove() {
-	image.client.RemoveImageExtended(image.ID, docker.RemoveImageOptions{
-		Force: true,
+	image.client.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            image.ID,
+		RemoveVolumes: true,
+		Force:         true,
 	})
 }
 
-// Compile sets up a new image ready to execute the given source code.
-// It's important to Remove the image to clean up resources.
+// Compile sets up a new Container and gets ready to execute the given source code.
+// It's important to Remove the Container to clean up resources.
 func (lang *Language) Compile(timeout int64, source string) (image *Image, result *ExecutionResult, err error) {
 	client, _ := docker.NewClient(endpoint)
 
@@ -63,12 +80,13 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 			OpenStdin:       true,
 			StdinOnce:       true,
 			NetworkDisabled: true,
+			Volumes: map[string]struct{}{
+				"/src": struct{}{},
+			},
 		},
 	})
 
 	if err == nil {
-		defer client.RemoveContainer(docker.RemoveContainerOptions{ID: container.id, Force: true})
-
 		err = client.UploadToContainer(container.id, docker.UploadToContainerOptions{
 			InputStream: lang.tarSource(source, filePath),
 			Path:        "/",
@@ -91,17 +109,15 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 	}
 
 	if err == nil && result.ExitCode == 0 {
-		var dockerImage *docker.Image
-		dockerImage, err = client.CommitContainer(docker.CommitContainerOptions{
-			Container: container.id,
-		})
-		if err == nil {
-			image = &Image{
-				ID:     dockerImage.ID,
-				lang:   lang,
-				client: client,
-			}
+		image = &Image{
+			ID:     container.id,
+			lang:   lang,
+			client: client,
 		}
+	}
+
+	if image == nil {
+		client.RemoveContainer(docker.RemoveContainerOptions{ID: container.id, Force: true})
 	}
 
 	return

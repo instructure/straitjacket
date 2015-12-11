@@ -52,23 +52,6 @@ func (lang *Language) Template() string {
 	return lang.Checks.Simple.Source
 }
 
-func (lang *Language) Run(opts *RunOptions) (result *RunResult, err error) {
-	result = &RunResult{}
-	image, compileResult, err := lang.Compile(opts.CompileTimeout, opts.Source)
-	result.CompileStep = compileResult
-	if err == nil {
-		defer image.Remove()
-
-		if compileResult != nil && compileResult.ExitCode != 0 {
-			return
-		}
-
-		result.RunStep, err = image.Run(opts)
-	}
-
-	return
-}
-
 func (lang *Language) runCheck(testName string, check *Check) error {
 	var stdout, stderr bytes.Buffer
 
