@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -38,23 +37,6 @@ type RunOptions struct {
 	Stdout, Stderr          io.Writer
 	Timeout, CompileTimeout int64
 	MaxOutputSize           int
-}
-
-func writeFile(filename, source string) (string, error) {
-	dir, err := ioutil.TempDir(tempdir, "straitjacket")
-
-	if err == nil {
-		err = os.Chmod(dir, 0777)
-	}
-	if err == nil {
-		err = ioutil.WriteFile(fmt.Sprintf("%s/%s", dir, filename), []byte(source), 0644)
-	}
-
-	if err != nil {
-		dir = ""
-	}
-
-	return dir, err
 }
 
 func (lang *Language) validate() error {

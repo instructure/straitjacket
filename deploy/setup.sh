@@ -29,4 +29,4 @@ cd $INSTALL_DIR
 ./straitjacket-setup.sh
 
 docker build -t straitjacket .
-docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp --rm straitjacket --test
+docker run -it -v /var/run/docker.sock:/var/run/docker.sock --rm straitjacket --test

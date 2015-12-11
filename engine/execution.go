@@ -10,7 +10,6 @@ import (
 
 var (
 	endpoint = "unix:///var/run/docker.sock"
-	tempdir  = "/tmp"
 )
 
 // ExecutionResult contains the results from one step of code execution --
