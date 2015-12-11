@@ -52,8 +52,27 @@ Resources:
           - path: /etc/straitjacket.env
             content: |
               SENTRY_DSN=%{Ref: SentryDSN}
+          - path: /etc/systemd/system/straitjacket.service
+            permissions: '0644'
+            owner: "root:root"
+            content: |
+              [Unit]
+              Description=straitjacket
+              Requires=docker.service
+              After=docker.service
+
+              [Service]
+              Restart=on-failure
+              RestartSec=10
+              ExecStart=/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -p 8081:8081 --env-file /etc/straitjacket.env --name %p straitjacket
+              ExecStop=-/usr/bin/docker stop %p
+
+              [Install]
+              WantedBy=multi-user.target
           runcmd:
-          - docker run -d --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -p 8081:8081 --env-file /etc/straitjacket.env --name straitjacket straitjacket
+          - [ systemctl, daemon-reload ]
+          - [ systemctl, enable, straitjacket.service ]
+          - [ systemctl, start, --no-block, straitjacket.service ]
 
   ASG:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -70,8 +89,8 @@ Resources:
         Ref: VpcSubnets
       LaunchConfigurationName:
         Ref: LaunchConfig
-      MinSize: 6
-      MaxSize: 15
+      MinSize: 2
+      MaxSize: 6
       LoadBalancerNames:
         - Ref: ELB
 

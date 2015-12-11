@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 INSTALL_DIR=/home/ubuntu/straitjacket
 
@@ -21,12 +22,6 @@ if ! mount | grep -q /var/lib/docker; then
   wget -qO- https://get.docker.com/ | sh
   usermod -aG docker ubuntu
   systemctl enable docker
-fi
-
-if ! mount | grep -q ' /tmp'; then
-  mkfs.ext4 /dev/xvdc
-  mount /dev/xvdc /tmp
-  echo /dev/xvdc /tmp btrfs defaults 0 0 >> /etc/fstab
 fi
 
 cd $INSTALL_DIR
