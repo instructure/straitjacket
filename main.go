@@ -21,6 +21,14 @@ func main() {
 		panic(err)
 	}
 
+	// go func() {
+	// 	for {
+	// 		time.Sleep(15 * time.Second)
+	// 		fmt.Printf("\n\n========\n")
+	// 		pprof.Lookup("goroutine").WriteTo(os.Stderr, 1)
+	// 	}
+	// }()
+
 	if *flagRunLanguageTests {
 		runLanguageTests(engine, *testLanguage)
 	} else {

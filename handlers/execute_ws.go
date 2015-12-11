@@ -33,11 +33,11 @@ type executions struct {
 }
 
 func (exes *executions) cleanup() {
-	close(exes.messages)
+	exes.wg.Wait()
 	if exes.image != nil {
 		exes.image.Remove()
 	}
-	exes.wg.Wait()
+	close(exes.messages)
 }
 
 // ExecuteWSHandler handles websocket API connections.
@@ -56,7 +56,7 @@ func (ctx *Context) ExecuteWSHandler(res http.ResponseWriter, hreq *http.Request
 		executions: map[string]*wsExecution{},
 		messages:   make(chan interface{}),
 	}
-	exes.write(ctx.logger(hreq), ws)
+	go exes.write(ctx.logger(hreq), ws)
 	defer exes.cleanup()
 
 	for {
@@ -112,7 +112,7 @@ func (exes *executions) process(ctx *Context, req *wsRequest) {
 			exes.messages <- wsError(&req.Run.ID, &wsProtocolError{"must compile before running"})
 		} else {
 			execution := exes.newExecution(ctx, req.Run)
-			execution.run(ctx, req.Run, exes.image)
+			execution.run(ctx, &exes.wg, req.Run, exes.image)
 		}
 	}
 	if req.Write != nil {
@@ -134,16 +134,12 @@ func (exes *executions) process(ctx *Context, req *wsRequest) {
 }
 
 func (exes *executions) write(logger *logrus.Entry, ws *websocket.Conn) {
-	exes.wg.Add(1)
-	go func() {
-		defer exes.wg.Done()
-		for msg := range exes.messages {
-			logger.WithFields(logrus.Fields{"response": msg}).Info("response")
-			if ws.WriteJSON(msg) != nil {
-				break
-			}
+	for msg := range exes.messages {
+		logger.WithFields(logrus.Fields{"response": msg}).Info("response")
+		if ws.WriteJSON(msg) != nil {
+			break
 		}
-	}()
+	}
 }
 
 func (exes *executions) compile(ctx *Context, req *wsCompileRequest) (*engine.ExecutionResult, error) {
@@ -185,13 +181,15 @@ func (exes *executions) newExecution(ctx *Context, req *wsRunRequest) *wsExecuti
 	return exe
 }
 
-func (exe *wsExecution) run(ctx *Context, req *wsRunRequest, image *engine.Image) {
-	go func() { io.Copy(&wsWriter{exe.ID, exe.output, "stdout"}, exe.stdoutR) }()
-	go func() { io.Copy(&wsWriter{exe.ID, exe.output, "stderr"}, exe.stderrR) }()
+func (exe *wsExecution) run(ctx *Context, wg *sync.WaitGroup, req *wsRunRequest, image *engine.Image) {
+	wg.Add(3)
+	go func() { io.Copy(&wsWriter{exe.ID, exe.output, "stdout"}, exe.stdoutR); wg.Done() }()
+	go func() { io.Copy(&wsWriter{exe.ID, exe.output, "stderr"}, exe.stderrR); wg.Done() }()
 	go func() {
 		defer func() {
 			exe.stdoutW.Close()
 			exe.stderrW.Close()
+			wg.Done()
 		}()
 		runStep, err := image.Run(&engine.RunOptions{
 			Stdin:         exe.stdinR,
