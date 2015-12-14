@@ -69,11 +69,9 @@ func (image *Image) Remove() {
 // Compile sets up a new Container and gets ready to execute the given source code.
 // It's important to Remove the Container to clean up resources.
 func (lang *Language) Compile(timeout int64, source string) (image *Image, result *ExecutionResult, err error) {
-	client, _ := docker.NewClient(endpoint)
-
 	filePath := fmt.Sprintf("/src/%s", lang.Filename)
 
-	container, err := createContainer(client, docker.CreateContainerOptions{
+	container, err := createContainer(lang.client, docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:           lang.DockerImage,
 			Cmd:             []string{"--build", filePath},
@@ -87,7 +85,7 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 	})
 
 	if err == nil {
-		err = client.UploadToContainer(container.id, docker.UploadToContainerOptions{
+		err = lang.client.UploadToContainer(container.id, docker.UploadToContainerOptions{
 			InputStream: lang.tarSource(source, filePath),
 			Path:        "/",
 		})
@@ -112,12 +110,12 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 		image = &Image{
 			ID:     container.id,
 			lang:   lang,
-			client: client,
+			client: lang.client,
 		}
 	}
 
 	if image == nil {
-		client.RemoveContainer(docker.RemoveContainerOptions{ID: container.id, Force: true})
+		lang.client.RemoveContainer(docker.RemoveContainerOptions{ID: container.id, Force: true})
 	}
 
 	return

@@ -34,6 +34,11 @@ func New(confPath string, disableApparmor bool) (result *Engine, err error) {
 		return
 	}
 
+	result.client, err = docker.NewClient(endpoint)
+	if err != nil {
+		return
+	}
+
 	for _, config := range configs {
 		var lang *Language
 		lang, err = loadLanguage(config)
@@ -42,13 +47,12 @@ func New(confPath string, disableApparmor bool) (result *Engine, err error) {
 			// fail everything if one language fails to load
 			return
 		}
+		lang.client = result.client
 		if disableApparmor {
 			lang.disableAppArmor()
 		}
 		result.languages = append(result.languages, lang)
 	}
-
-	result.client, err = docker.NewClient(endpoint)
 
 	return
 }

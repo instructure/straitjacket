@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/fsouza/go-dockerclient"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,6 +22,7 @@ type Language struct {
 	CompilerProfile string   `yaml:"compiler_profile"`
 	Checks          Checks   `yaml:"tests"`
 	FileExtensions  []string `yaml:"file_extensions"`
+	client          *docker.Client
 }
 
 // RunResult contains the full results for each executed step of a code run.
