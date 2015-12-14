@@ -115,9 +115,9 @@ Resources:
         - Ref: ElbSecurityGroup
       Listeners:
         - InstancePort: 8081
-          InstanceProtocol: HTTP
+          InstanceProtocol: TCP
           LoadBalancerPort: 80
-          Protocol: HTTP
+          Protocol: TCP
 
   ScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
