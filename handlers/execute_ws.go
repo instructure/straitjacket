@@ -30,6 +30,7 @@ type executions struct {
 	executions map[string]*wsExecution
 	messages   chan interface{}
 	wg         sync.WaitGroup
+	writerWg   sync.WaitGroup
 }
 
 func (exes *executions) cleanup() {
@@ -38,6 +39,7 @@ func (exes *executions) cleanup() {
 		exes.image.Remove()
 	}
 	close(exes.messages)
+	exes.writerWg.Wait()
 }
 
 // ExecuteWSHandler handles websocket API connections.
@@ -56,7 +58,7 @@ func (ctx *Context) ExecuteWSHandler(res http.ResponseWriter, hreq *http.Request
 		executions: map[string]*wsExecution{},
 		messages:   make(chan interface{}),
 	}
-	go exes.write(ctx.logger(hreq), ws)
+	exes.write(ctx.logger(hreq), ws)
 	defer exes.cleanup()
 
 	for {
@@ -134,12 +136,16 @@ func (exes *executions) process(ctx *Context, req *wsRequest) {
 }
 
 func (exes *executions) write(logger *logrus.Entry, ws *websocket.Conn) {
-	for msg := range exes.messages {
-		logger.WithFields(logrus.Fields{"response": msg}).Info("response")
-		if ws.WriteJSON(msg) != nil {
-			break
+	exes.writerWg.Add(1)
+	go func() {
+		defer exes.writerWg.Done()
+		for msg := range exes.messages {
+			logger.WithFields(logrus.Fields{"response": msg}).Info("response")
+			if ws.WriteJSON(msg) != nil {
+				break
+			}
 		}
-	}
+	}()
 }
 
 func (exes *executions) compile(ctx *Context, req *wsCompileRequest) (*engine.ExecutionResult, error) {
