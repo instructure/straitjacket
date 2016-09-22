@@ -114,7 +114,7 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 		}
 	}
 
-	if image == nil {
+	if container != nil && image == nil {
 		lang.client.RemoveContainer(docker.RemoveContainerOptions{ID: container.id, Force: true})
 	}
 
