@@ -21,7 +21,6 @@ if ! mount | grep -q /var/lib/docker; then
   echo /dev/xvdb /var/lib/docker btrfs defaults 0 0 >> /etc/fstab
   wget -qO- https://get.docker.com/ | sh
   usermod -aG docker ubuntu
-  systemctl enable docker
 fi
 
 cd $INSTALL_DIR
@@ -29,4 +28,4 @@ cd $INSTALL_DIR
 ./straitjacket-setup.sh
 
 docker build -t straitjacket .
-docker run -it -v /var/run/docker.sock:/var/run/docker.sock --rm straitjacket --test
+docker run -v /var/run/docker.sock:/var/run/docker.sock --rm straitjacket --test

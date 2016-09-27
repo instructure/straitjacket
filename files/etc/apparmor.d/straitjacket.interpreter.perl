@@ -5,4 +5,5 @@ profile straitjacket/interpreter/perl {
   #include <abstractions/straitjacket-base>
 
   /usr/share/perl/**/** rix,
+  /usr/lib/*/perl/** rix,
 }

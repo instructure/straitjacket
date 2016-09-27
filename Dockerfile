@@ -1,6 +1,5 @@
-FROM golang:1.5
+FROM golang:1.7.1
 
-ENV GO15VENDOREXPERIMENT 1
 WORKDIR /go/src/straitjacket
 
 RUN go get github.com/tools/godep

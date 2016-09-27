@@ -25,6 +25,10 @@ type Image struct {
 
 func (image *Image) Run(opts *RunOptions) (result *ExecutionResult, err error) {
 	filePath := fmt.Sprintf("/src/%s", image.lang.Filename)
+	securityOpt := []string{}
+	if image.lang.ApparmorProfile != "" {
+		securityOpt = append(securityOpt, fmt.Sprintf("apparmor:%s", image.lang.ApparmorProfile))
+	}
 	container, err := createContainer(image.client, docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:           image.lang.DockerImage,
@@ -35,6 +39,10 @@ func (image *Image) Run(opts *RunOptions) (result *ExecutionResult, err error) {
 		},
 		HostConfig: &docker.HostConfig{
 			VolumesFrom: []string{image.ID + ":ro"},
+			SecurityOpt: securityOpt,
+			LogConfig: docker.LogConfig{
+				Type: "none",
+			},
 		},
 	})
 
@@ -44,12 +52,11 @@ func (image *Image) Run(opts *RunOptions) (result *ExecutionResult, err error) {
 		}()
 		result = &ExecutionResult{}
 		result, err = container.execute("runtime", &executionOptions{
-			timeout:         opts.Timeout,
-			stdin:           opts.Stdin,
-			stdout:          opts.Stdout,
-			stderr:          opts.Stderr,
-			maxOutputSize:   opts.MaxOutputSize,
-			apparmorProfile: image.lang.ApparmorProfile,
+			timeout:       opts.Timeout,
+			stdin:         opts.Stdin,
+			stdout:        opts.Stdout,
+			stderr:        opts.Stderr,
+			maxOutputSize: opts.MaxOutputSize,
 		})
 	}
 
@@ -70,8 +77,13 @@ func (image *Image) Remove() {
 // It's important to Remove the Container to clean up resources.
 func (lang *Language) Compile(timeout int64, source string) (image *Image, result *ExecutionResult, err error) {
 	filePath := fmt.Sprintf("/src/%s", lang.Filename)
+	securityOpt := []string{}
+	if lang.CompilerProfile != "" {
+		securityOpt = append(securityOpt, fmt.Sprintf("apparmor:%s", lang.CompilerProfile))
+	}
 
-	container, err := createContainer(lang.client, docker.CreateContainerOptions{
+	var container *container
+	container, err = createContainer(lang.client, docker.CreateContainerOptions{
 		Config: &docker.Config{
 			Image:           lang.DockerImage,
 			Cmd:             []string{"--build", filePath},
@@ -82,12 +94,15 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 				"/src": struct{}{},
 			},
 		},
+		HostConfig: &docker.HostConfig{
+			SecurityOpt: securityOpt,
+		},
 	})
 
 	if err == nil {
 		err = lang.client.UploadToContainer(container.id, docker.UploadToContainerOptions{
-			InputStream: lang.tarSource(source, filePath),
-			Path:        "/",
+			InputStream: lang.tarSource(source, lang.Filename),
+			Path:        "/src",
 		})
 	}
 
@@ -96,11 +111,10 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 	if err == nil && lang.compileStep {
 		var stdout, stderr bytes.Buffer
 		result, err = container.execute("compilation", &executionOptions{
-			timeout:         timeout,
-			stdout:          &stdout,
-			stderr:          &stderr,
-			maxOutputSize:   64 * 1024,
-			apparmorProfile: lang.CompilerProfile,
+			timeout:       timeout,
+			stdout:        &stdout,
+			stderr:        &stderr,
+			maxOutputSize: 64 * 1024,
 		})
 		result.Stdout = stdout.String()
 		result.Stderr = stderr.String()
@@ -124,8 +138,9 @@ func (lang *Language) Compile(timeout int64, source string) (image *Image, resul
 func (lang *Language) tarSource(source, filePath string) io.Reader {
 	result := &bytes.Buffer{}
 	writer := tar.NewWriter(result)
+	// Somewhat hacky way to change the "/src" dir permissions
 	writer.WriteHeader(&tar.Header{
-		Name:     "/src",
+		Name:     "/",
 		Mode:     0777,
 		Typeflag: tar.TypeDir,
 	})

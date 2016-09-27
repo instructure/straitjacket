@@ -25,11 +25,10 @@ type ExecutionResult struct {
 }
 
 type executionOptions struct {
-	apparmorProfile string
-	stdin           io.Reader
-	stdout, stderr  io.Writer
-	timeout         int64
-	maxOutputSize   int
+	stdin          io.Reader
+	stdout, stderr io.Writer
+	timeout        int64
+	maxOutputSize  int
 }
 
 type container struct {
@@ -57,24 +56,24 @@ func (c *container) execute(step string, opts *executionOptions) (result *Execut
 	result = &ExecutionResult{}
 	timeout := false
 
-	if err == nil {
-		startTime := time.Now()
-		err1, err2 := c.attachAndRun(result, opts)
-		select {
-		case err = <-err1:
-		case err = <-err2:
-			// pass
-		case <-time.After(time.Duration(opts.timeout) * time.Second):
-			timeout = true
-		}
-		result.RunTime = time.Now().Sub(startTime)
+	startTime := time.Now()
+	err1, err2 := c.attachAndRun(result, opts)
+	select {
+	case err = <-err1:
+	case err = <-err2:
+		// pass
+	case <-time.After(time.Duration(opts.timeout) * time.Second):
+		timeout = true
+	}
+	result.RunTime = time.Now().Sub(startTime)
 
+	if timeout {
 		// if the container is already stopped we just ignore the error respose...
 		// RemoveContainer will be called later.
 		c.client.KillContainer(docker.KillContainerOptions{ID: c.id})
-		// make sure we've shut down by waiting for attachAndRun to push or close the channels
-		err = firstError(err, <-err1, <-err2)
 	}
+	// make sure we've shut down by waiting for attachAndRun to push or close the channels
+	err = firstError(err, <-err1, <-err2)
 
 	if timeout {
 		result.ErrorString = fmt.Sprintf("%s_timelimit", step)
@@ -99,17 +98,8 @@ func (c *container) attachAndRun(result *ExecutionResult, opts *executionOptions
 	// run goroutine
 	go func() {
 		_ = <-sentinel
-		securityOpt := []string{}
-		if opts.apparmorProfile != "" {
-			securityOpt = append(securityOpt, fmt.Sprintf("apparmor:%s", opts.apparmorProfile))
-		}
 		// when we get the sentinel, we know we've attached in the other goroutine
-		err := c.client.StartContainer(c.id, &docker.HostConfig{
-			SecurityOpt: securityOpt,
-			LogConfig: docker.LogConfig{
-				Type: "none",
-			},
-		})
+		err := c.client.StartContainer(c.id, nil)
 		sentinel <- struct{}{}
 
 		if err == nil {
@@ -121,7 +111,7 @@ func (c *container) attachAndRun(result *ExecutionResult, opts *executionOptions
 
 	// attach goroutine
 	go func() {
-		err := c.client.AttachToContainer(docker.AttachToContainerOptions{
+		cw, err := c.client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 			Container:    c.id,
 			InputStream:  opts.stdin,
 			OutputStream: NewLimitedWriter(opts.stdout, opts.maxOutputSize),
@@ -135,6 +125,7 @@ func (c *container) attachAndRun(result *ExecutionResult, opts *executionOptions
 
 		attachResult <- err
 		close(attachResult)
+		cw.Wait()
 	}()
 
 	return runResult, attachResult

@@ -6,7 +6,7 @@ profile straitjacket/interpreter/python {
   #include <abstractions/straitjacket-base>
 
   /usr/local/include/python3.4m/pyconfig.h r,
-  /usr/local/lib/** r,
+  /usr/local/lib/** rix,
   /usr/local/bin/python* rix,
 
   /var/local/straitjacket/tmp/source/?*/?* r,

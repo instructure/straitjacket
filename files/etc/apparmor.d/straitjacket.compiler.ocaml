@@ -12,7 +12,7 @@ profile straitjacket/compiler/ocaml {
   /usr/bin/camlp4 rix,
   /usr/local/lib/ocaml/** r,
   /usr/lib/ocaml/** r,
-  /home/docker/.opam/** rw,
+  /home/docker/.opam/** rwkix,
   /home/docker/.opam/*/bin/** rix,
   / r,
 

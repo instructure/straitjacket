@@ -64,4 +64,3 @@ tests:
       end
     stdout: "\\A starting allocation\\n\\z"
     stderr:
-    exitstatus: 141

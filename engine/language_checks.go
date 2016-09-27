@@ -35,7 +35,7 @@ func (lang *Language) RunChecks() (err error) {
 
 type Check struct {
 	Source, Stdin, Stdout, Stderr string
-	ExitStatus                    int
+	ExitStatus                    *int
 }
 
 type Checks struct {
@@ -77,7 +77,7 @@ func (lang *Language) runCheck(testName string, check *Check) error {
 		return fmt.Errorf("Didn't run %s", errorString)
 	}
 
-	if result.RunStep.ExitCode != check.ExitStatus {
+	if check.ExitStatus != nil && result.RunStep.ExitCode != *check.ExitStatus {
 		return fmt.Errorf("Incorrect exit code %s", errorString)
 	}
 
