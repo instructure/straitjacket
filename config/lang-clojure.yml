@@ -1,9 +1,9 @@
 name: clojure
 visible_name: Clojure
-version: "1.7.0"
+version: "1.8.0"
 apparmor_profile: straitjacket/interpreter/clojure
 filename: source.clj
-docker_image: straitjacket/lang-clojure
+docker_image: straitjacket/lang-clojure:1.8.0
 
 file_extensions:
   - clj
