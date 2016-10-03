@@ -1,10 +1,10 @@
 name: go
-visible_name: Go 1.4.2
-version: "1.4.2"
+visible_name: Go 1.7.1
+version: "1.7.1"
 compiler_profile: straitjacket/compiler/go
 apparmor_profile: straitjacket/compiled/go
 filename: source.go
-docker_image: straitjacket/lang-go
+docker_image: straitjacket/lang-go:1.7.1
 
 file_extensions:
   - go

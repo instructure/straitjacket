@@ -1,4 +1,4 @@
-FROM golang:1.4.2
+FROM golang:1.7.1
 
 ADD build-run /build-run
 RUN chmod +x /build-run

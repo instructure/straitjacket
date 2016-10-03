@@ -5,10 +5,6 @@ profile straitjacket/compiler/go {
   #include <abstractions/straitjacket-base>
   #include <abstractions/straitjacket-compiler>
 
-  /usr/share/go/** rix,
-  /usr/lib/go/** rix,
-  /usr/src/go/bin/go rix,
-  /usr/src/go/src/** r,
-  /usr/src/go/pkg/** rix,
+  /usr/local/go/** rix,
   /tmp/** rw,
 }
