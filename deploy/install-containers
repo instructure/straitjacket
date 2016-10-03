@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 
-for language in languages/*; do
-  image_name=straitjacket/lang-$(basename $language)
-  docker pull $image_name:latest
+languages=${1:-languages/*}
+
+for language in $languages; do
+  lang=$(basename $language)
+  image_name=`ruby -r yaml -e "puts YAML.load_file('config/lang-${lang}.yml')['docker_image']"`
+  docker pull $image_name
 done
